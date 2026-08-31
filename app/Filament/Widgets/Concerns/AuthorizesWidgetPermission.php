@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Filament\Concerns;
+namespace App\Filament\Widgets\Concerns;
 
 use App\Models\User;
 
-trait AuthorizesManagers
+trait AuthorizesWidgetPermission
 {
     public static function canView(): bool
     {
-        return static::userIsManager();
+        $user = auth()->user();
+
+        return $user instanceof User && $user->can(static::widgetPermission());
     }
 
     public function mountCanAuthorizeAccess(): void
@@ -21,10 +23,5 @@ trait AuthorizesManagers
         abort_unless(static::canView(), 403);
     }
 
-    protected static function userIsManager(): bool
-    {
-        $user = auth()->user();
-
-        return $user instanceof User && $user->isManager();
-    }
+    abstract protected static function widgetPermission(): string;
 }

@@ -26,7 +26,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         Gate::define('viewHorizon', function ($user = null): bool {
             return $user instanceof User
-                && $user->canAccessAllRecords()
+                && $user->can('ViewHorizon')
                 && ! $user->isBlocked();
         });
     }

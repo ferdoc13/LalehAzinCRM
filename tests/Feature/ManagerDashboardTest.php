@@ -79,7 +79,8 @@ it('hides manager widgets and reports from employees and admins', function (stri
         ->and(Reports::canAccess())->toBeFalse();
 
     Livewire::test(ManagerStatsOverviewWidget::class)->assertForbidden();
-    Livewire::test(Reports::class)->assertForbidden();
+
+    $this->get(Reports::getUrl())->assertForbidden();
 })->with(['employee', 'admin']);
 
 it('lists pending discount requests for a manager to review', function () {

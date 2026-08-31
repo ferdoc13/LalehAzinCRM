@@ -3,7 +3,7 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Enums\WithdrawalRequestStatus;
-use App\Filament\Concerns\AuthorizesManagers;
+use App\Filament\Widgets\Concerns\AuthorizesWidgetPermission;
 use App\Filament\Widgets\Concerns\InteractsWithReportDateRange;
 use App\Models\WithdrawalRequest;
 use Filament\Tables\Columns\TextColumn;
@@ -13,8 +13,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PaidDiscountsTableWidget extends TableWidget
 {
-    use AuthorizesManagers;
+    use AuthorizesWidgetPermission;
     use InteractsWithReportDateRange;
+
+    protected static function widgetPermission(): string
+    {
+        return 'ViewReports';
+    }
 
     protected static bool $isDiscovered = false;
 

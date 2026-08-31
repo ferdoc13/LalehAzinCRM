@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +12,9 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (['employee', 'manager', 'admin'] as $role) {
-            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        }
+        $this->call(ShieldSeeder::class);
 
-        $admin = User::query()->updateOrCreate(
+        $user = User::query()->updateOrCreate(
             ['email' => 'ferdo30.ir@yahoo.com'],
             [
                 'name' => 'فردوک',
@@ -26,6 +23,6 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        $admin->syncRoles(['manager']);
+        $user->syncRoles(['manager']);
     }
 }

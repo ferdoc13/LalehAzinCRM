@@ -3,9 +3,9 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\DiscountRequestStatus;
-use App\Filament\Concerns\AuthorizesManagers;
 use App\Filament\Resources\DiscountRequests\Actions\ReviewDiscountRequestActions;
 use App\Filament\Resources\DiscountRequests\DiscountRequestResource;
+use App\Filament\Widgets\Concerns\AuthorizesWidgetPermission;
 use App\Models\DiscountRequest;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -15,7 +15,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PendingDiscountRequestsWidget extends TableWidget
 {
-    use AuthorizesManagers;
+    use AuthorizesWidgetPermission;
+
+    protected static function widgetPermission(): string
+    {
+        return 'ViewPendingDiscountRequestsWidget';
+    }
 
     protected static ?int $sort = 3;
 

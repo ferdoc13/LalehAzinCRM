@@ -3,13 +3,18 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\InvoicePaymentStatus;
-use App\Filament\Concerns\AuthorizesManagers;
+use App\Filament\Widgets\Concerns\AuthorizesWidgetPermission;
 use App\Models\Invoice;
 use Filament\Widgets\ChartWidget;
 
 class InvoiceSalesChartWidget extends ChartWidget
 {
-    use AuthorizesManagers;
+    use AuthorizesWidgetPermission;
+
+    protected static function widgetPermission(): string
+    {
+        return 'ViewInvoiceSalesChartWidget';
+    }
 
     protected static ?int $sort = 2;
 

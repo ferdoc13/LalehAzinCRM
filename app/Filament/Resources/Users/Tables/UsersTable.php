@@ -54,14 +54,16 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('role')
+                SelectFilter::make('roles')
                     ->label('نقش')
-                    ->options(StaffRole::class)
-                    ->query(function (Builder $query, array $data): Builder {
-                        $role = $data['value'] ?? null;
+                    ->relationship('roles', 'name')
+                    ->getOptionLabelFromRecordUsing(function (mixed $record): string {
+                        $name = is_object($record) ? (string) $record->name : (string) $record;
 
-                        return filled($role) ? $query->role($role) : $query;
-                    }),
+                        return StaffRole::tryFrom($name)?->getLabel() ?? $name;
+                    })
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('blocked')
                     ->label('وضعیت')
                     ->options([

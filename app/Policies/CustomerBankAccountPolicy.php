@@ -15,7 +15,7 @@ class CustomerBankAccountPolicy
             return true;
         }
 
-        return $actor instanceof User && $actor->isStaff();
+        return $actor instanceof User && $actor->can('ViewAny:Customer');
     }
 
     public function view(Authenticatable $actor, CustomerBankAccount $customerBankAccount): bool
@@ -33,7 +33,7 @@ class CustomerBankAccountPolicy
             return true;
         }
 
-        return $actor instanceof User && $actor->isStaff();
+        return $actor instanceof User && $actor->can('Create:Customer');
     }
 
     public function update(Authenticatable $actor, CustomerBankAccount $customerBankAccount): bool
@@ -56,17 +56,21 @@ class CustomerBankAccountPolicy
 
     public function restore(Authenticatable $actor, CustomerBankAccount $customerBankAccount): bool
     {
-        return $actor instanceof User && $actor->canAccessAllRecords();
+        return $actor instanceof User && $actor->can('Restore:Customer');
     }
 
     public function forceDelete(Authenticatable $actor, CustomerBankAccount $customerBankAccount): bool
     {
-        return $actor instanceof User && $actor->canAccessAllRecords();
+        return $actor instanceof User && $actor->can('ForceDelete:Customer');
     }
 
     private function staffOwnsCustomer(Authenticatable $actor, CustomerBankAccount $customerBankAccount): bool
     {
         if (! $actor instanceof User) {
+            return false;
+        }
+
+        if (! $actor->can('View:Customer')) {
             return false;
         }
 

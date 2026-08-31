@@ -6,7 +6,7 @@ use App\Enums\CustomerType;
 use App\Enums\DiscountRequestStatus;
 use App\Enums\InvoicePaymentStatus;
 use App\Enums\WithdrawalRequestStatus;
-use App\Filament\Concerns\AuthorizesManagers;
+use App\Filament\Widgets\Concerns\AuthorizesWidgetPermission;
 use App\Models\Customer;
 use App\Models\DiscountRequest;
 use App\Models\Invoice;
@@ -18,7 +18,12 @@ use Illuminate\Support\Number;
 
 class ManagerStatsOverviewWidget extends StatsOverviewWidget
 {
-    use AuthorizesManagers;
+    use AuthorizesWidgetPermission;
+
+    protected static function widgetPermission(): string
+    {
+        return 'ViewManagerStatsOverviewWidget';
+    }
 
     protected static ?int $sort = 1;
 

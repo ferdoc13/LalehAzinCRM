@@ -3,9 +3,9 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Enums\InvoicePaymentStatus;
-use App\Filament\Concerns\AuthorizesManagers;
 use App\Filament\Exports\InvoiceExporter;
 use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Filament\Widgets\Concerns\AuthorizesWidgetPermission;
 use App\Filament\Widgets\Concerns\InteractsWithReportDateRange;
 use App\Models\Invoice;
 use Filament\Actions\ExportAction;
@@ -19,8 +19,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ReportInvoicesTableWidget extends TableWidget
 {
-    use AuthorizesManagers;
+    use AuthorizesWidgetPermission;
     use InteractsWithReportDateRange;
+
+    protected static function widgetPermission(): string
+    {
+        return 'ViewReports';
+    }
 
     protected static bool $isDiscovered = false;
 

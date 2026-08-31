@@ -2,10 +2,10 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Concerns\AuthorizesManagers;
 use App\Filament\Widgets\Reports\EmployeePerformanceTableWidget;
 use App\Filament\Widgets\Reports\PaidDiscountsTableWidget;
 use App\Filament\Widgets\Reports\ReportInvoicesTableWidget;
+use App\Models\User;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
@@ -19,7 +19,6 @@ use Filament\Widgets\WidgetConfiguration;
 
 class Reports extends Page
 {
-    use AuthorizesManagers;
     use HasFiltersForm;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
@@ -34,12 +33,24 @@ class Reports extends Page
 
     public static function canAccess(): bool
     {
-        return static::userIsManager();
+        $user = auth()->user();
+
+        return $user instanceof User && $user->can('ViewReports');
     }
 
     public static function shouldRegisterNavigation(): bool
     {
         return static::canAccess();
+    }
+
+    public function mountCanAuthorizeAccess(): void
+    {
+        abort_unless(static::canAccess(), 403);
+    }
+
+    public function hydrateCanAuthorizeAccess(): void
+    {
+        abort_unless(static::canAccess(), 403);
     }
 
     public function mount(): void

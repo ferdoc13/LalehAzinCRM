@@ -2,8 +2,8 @@
 
 use App\Models\Customer;
 use App\Models\User;
+use Database\Seeders\ShieldSeeder;
 use Filament\Facades\Filament;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /*
@@ -54,9 +54,7 @@ function something()
 
 function seedRoles(): void
 {
-    foreach (['employee', 'manager', 'admin'] as $role) {
-        Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-    }
+    test()->seed(ShieldSeeder::class);
 }
 
 function staffUser(string $role = 'employee'): User

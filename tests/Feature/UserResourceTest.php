@@ -5,9 +5,11 @@ use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -37,11 +39,15 @@ it('forbids employees and admins from accessing the user resource', function (st
 it('lets a manager create a staff user', function () {
     $this->actingAs(staffUser('manager'));
 
+    $employeeRoleId = Role::query()
+        ->where('name', StaffRole::Employee->value)
+        ->value('id');
+
     Livewire::test(CreateUser::class)
         ->fillForm([
             'name' => 'سارا احمدی',
             'email' => 'sara@example.com',
-            'role' => StaffRole::Employee->value,
+            'roles' => [$employeeRoleId],
             'password' => 'password',
             'password_confirmation' => 'password',
         ])
@@ -99,3 +105,15 @@ it('prevents a blocked user from accessing the admin panel', function () {
         ->get('/admin')
         ->assertForbidden();
 });
+
+it('lets a manager open the shield roles resource', function () {
+    $this->actingAs(staffUser('manager'))
+        ->get(RoleResource::getUrl())
+        ->assertOk();
+});
+
+it('forbids employees and admins from opening the shield roles resource', function (string $role) {
+    $this->actingAs(staffUser($role))
+        ->get(RoleResource::getUrl())
+        ->assertForbidden();
+})->with(['employee', 'admin']);

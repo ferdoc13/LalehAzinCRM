@@ -15,7 +15,7 @@ class CustomerCreditLedgerPolicy
             return true;
         }
 
-        return $actor instanceof User && $actor->isStaff();
+        return $actor instanceof User && $actor->can('View:Customer');
     }
 
     public function view(Authenticatable $actor, CustomerCreditLedger $customerCreditLedger): bool
@@ -24,12 +24,12 @@ class CustomerCreditLedgerPolicy
             return $customerCreditLedger->customer_id === $actor->id;
         }
 
-        return $actor instanceof User && $actor->isStaff();
+        return $actor instanceof User && $actor->can('View:Customer');
     }
 
     public function create(Authenticatable $actor): bool
     {
-        return $actor instanceof User && $actor->isStaff();
+        return $actor instanceof User && $actor->can('Update:Customer');
     }
 
     public function update(Authenticatable $actor, CustomerCreditLedger $customerCreditLedger): bool
@@ -39,6 +39,6 @@ class CustomerCreditLedgerPolicy
 
     public function delete(Authenticatable $actor, CustomerCreditLedger $customerCreditLedger): bool
     {
-        return $actor instanceof User && $actor->canAccessAllRecords();
+        return $actor instanceof User && $actor->can('Delete:Customer');
     }
 }

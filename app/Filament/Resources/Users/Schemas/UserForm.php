@@ -6,6 +6,8 @@ use App\Enums\StaffRole;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Role;
 
 class UserForm
 {
@@ -25,10 +27,20 @@ class UserForm
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
-                Select::make('role')
+                Select::make('roles')
                     ->label('نقش')
-                    ->options(StaffRole::class)
-                    ->default(StaffRole::Employee)
+                    ->relationship(
+                        name: 'roles',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query): Builder => $query->where('guard_name', 'web')->orderBy('name'),
+                    )
+                    ->getOptionLabelFromRecordUsing(function (Role $record): string {
+                        return StaffRole::tryFrom($record->name)?->getLabel() ?? $record->name;
+                    })
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->minItems(1)
                     ->required(),
                 TextInput::make('password')
                     ->label('رمز عبور')
