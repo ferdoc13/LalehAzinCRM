@@ -53,6 +53,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasAnyRole(['employee', 'manager', 'admin']);
     }
 
+    public function isManager(): bool
+    {
+        return $this->hasRole('manager');
+    }
+
     public function canAccessAllRecords(): bool
     {
         return $this->hasAnyRole(['manager', 'admin']);
