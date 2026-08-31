@@ -1,10 +1,8 @@
 <?php
 
+use Ariaieboy\Jalali\Jalali;
 use Faker\Factory as FakerFactory;
 use Faker\Generator;
-use Illuminate\Support\Facades\App;
-use Morilog\Jalali\CalendarUtils;
-use Morilog\Jalali\Jalalian;
 
 if (! function_exists('fake') && class_exists(FakerFactory::class)) {
     function fake(?string $locale = null): Generator
@@ -32,9 +30,6 @@ if (! function_exists('jalali_format')) {
             return null;
         }
 
-        return CalendarUtils::convertNumbers(
-            Jalalian::fromDateTime($date)->format($format),
-            ! App::isLocale('fa'),
-        );
+        return Jalali::fromDateTime($date)->format($format);
     }
 }

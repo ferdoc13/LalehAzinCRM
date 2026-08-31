@@ -7,11 +7,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ariaieboy/filament-jalali": "^3.0",
         "filament/filament": "^5.7",
         "laravel/framework": "^13.17",
         "laravel/horizon": "^5.48",
         "laravel/tinker": "^3.0",
-        "mokhosh/filament-jalali": "^6.0",
         "predis/predis": "^3.6",
         "spatie/laravel-permission": "^8.3"
     },
