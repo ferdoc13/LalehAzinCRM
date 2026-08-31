@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Enums\CustomerType;
 use App\Models\Customer;
 use App\Models\User;
-use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,11 +16,11 @@ class CustomerFactory extends Factory
     {
         return [
             'type' => CustomerType::Individual,
-            'first_name' => PersianFaker::firstName(),
-            'last_name' => PersianFaker::lastName(),
-            'national_code' => PersianFaker::nationalCode(),
-            'mobile' => PersianFaker::mobile(),
-            'address' => PersianFaker::address(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'national_code' => fake()->unique()->numerify('##########'),
+            'mobile' => '09'.fake()->unique()->numerify('#########'),
+            'address' => fake()->address(),
             'employee_id' => User::factory(),
         ];
     }

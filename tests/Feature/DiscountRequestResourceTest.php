@@ -6,14 +6,13 @@ use App\Models\Customer;
 use App\Models\CustomerCreditLedger;
 use App\Models\DiscountRequest;
 use App\Services\CustomerCreditService;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(RoleSeeder::class);
+    seedRoles();
 });
 
 it('lets an employee see only their own discount requests', function () {

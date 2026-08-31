@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Customer;
 use App\Models\OtpCode;
-use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +16,7 @@ class OtpCodeFactory extends Factory
         return [
             'customer_id' => Customer::factory(),
             'phone' => null,
-            'code' => PersianFaker::otpCode(),
+            'code' => fake()->numerify('######'),
             'expires_at' => now()->addMinutes(5),
             'is_used' => false,
         ];

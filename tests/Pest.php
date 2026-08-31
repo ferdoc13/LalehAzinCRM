@@ -3,6 +3,7 @@
 use App\Models\Customer;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /*
@@ -49,6 +50,13 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function seedRoles(): void
+{
+    foreach (['employee', 'manager', 'admin'] as $role) {
+        Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    }
 }
 
 function staffUser(string $role = 'employee'): User

@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Enums\SmsEventType;
 use App\Enums\SmsSendStatus;
 use App\Models\SmsLog;
-use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,7 @@ class SmsLogFactory extends Factory
         $status = fake()->randomElement(SmsSendStatus::cases());
 
         return [
-            'recipient' => PersianFaker::mobile(),
+            'recipient' => '09'.fake()->numerify('#########'),
             'event_type' => $eventType,
             'content' => $this->contentForEvent($eventType),
             'send_status' => $status,
@@ -34,7 +33,7 @@ class SmsLogFactory extends Factory
     private function contentForEvent(SmsEventType $eventType): string
     {
         return match ($eventType) {
-            SmsEventType::Otp => 'کد تأیید شما: '.PersianFaker::otpCode(),
+            SmsEventType::Otp => 'کد تأیید شما: '.fake()->numerify('######'),
             SmsEventType::Invoice => 'فاکتور شماره INV-'.fake()->numerify('######').' صادر شد.',
             SmsEventType::Discount => 'درخواست تخفیف شما در حال بررسی است.',
             SmsEventType::Withdrawal => 'درخواست برداشت شما ثبت شد.',

@@ -14,7 +14,6 @@ use App\Models\Customer;
 use App\Models\DiscountRequest;
 use App\Models\Invoice;
 use App\Models\WithdrawalRequest;
-use Database\Seeders\RoleSeeder;
 use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -24,7 +23,7 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(RoleSeeder::class);
+    seedRoles();
     Notification::fake();
 });
 

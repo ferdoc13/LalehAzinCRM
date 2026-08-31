@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Customer;
 use App\Models\CustomerCompanyProfile;
-use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,10 +15,10 @@ class CustomerCompanyProfileFactory extends Factory
     {
         return [
             'customer_id' => Customer::factory(),
-            'company_name' => PersianFaker::companyName(),
-            'national_id' => PersianFaker::nationalId(),
-            'economic_code' => PersianFaker::economicCode(),
-            'company_address' => PersianFaker::address(),
+            'company_name' => fake()->company(),
+            'national_id' => fake()->unique()->numerify('###########'),
+            'economic_code' => fake()->numerify('############'),
+            'company_address' => fake()->address(),
         ];
     }
 }

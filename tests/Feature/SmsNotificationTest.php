@@ -19,7 +19,6 @@ use App\Notifications\WithdrawalCompletedNotification;
 use App\Notifications\WithdrawalRequestCreatedNotification;
 use App\Services\CustomerCreditService;
 use App\Services\OtpService;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -27,7 +26,7 @@ use Illuminate\Support\Facades\Notification;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(RoleSeeder::class);
+    seedRoles();
 });
 
 it('queues customer registration sms when a customer is created', function () {

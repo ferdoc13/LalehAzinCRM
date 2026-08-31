@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,7 @@ class InvoiceItemFactory extends Factory
 
         return [
             'invoice_id' => Invoice::factory(),
-            'description' => PersianFaker::productDescription(),
+            'description' => fake()->sentence(3),
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
             'total_amount' => round($quantity * $unitPrice, 2),
