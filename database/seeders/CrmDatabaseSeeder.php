@@ -14,10 +14,13 @@ use App\Models\SmsLog;
 use App\Models\User;
 use App\Models\WithdrawalRequest;
 use Database\Seeders\Support\PersianFaker;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CrmDatabaseSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     public function run(): void
     {
         $managers = User::factory()

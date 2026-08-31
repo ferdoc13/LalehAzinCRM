@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Exceptions\OtpRateLimitedException;
 use App\Models\Customer;
 use App\Models\OtpCode;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -48,12 +47,6 @@ class OtpService
             'code' => $code,
             'expires_at' => now()->addMinutes(self::TTL_MINUTES),
             'is_used' => false,
-        ]);
-
-        Log::info('Customer OTP generated', [
-            'mobile' => $mobile,
-            'code' => $code,
-            'expires_at' => $otp->expires_at?->toIso8601String(),
         ]);
 
         return $otp;

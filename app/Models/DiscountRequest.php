@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\DiscountRequestStatus;
+use App\Observers\DiscountRequestObserver;
 use Database\Factories\DiscountRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'reviewed_by',
     'reviewed_at',
 ])]
+#[ObservedBy([DiscountRequestObserver::class])]
 class DiscountRequest extends Model
 {
     /** @use HasFactory<DiscountRequestFactory> */

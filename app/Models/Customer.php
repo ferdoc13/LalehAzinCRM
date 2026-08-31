@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\CustomerType;
+use App\Observers\CustomerObserver;
 use Database\Factories\CustomerFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 #[Fillable([
     'type',
@@ -26,10 +29,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
     'employee_id',
     'apply_credit_to_next_invoice',
 ])]
+#[ObservedBy([CustomerObserver::class])]
 class Customer extends Authenticatable implements FilamentUser, HasName
 {
     /** @use HasFactory<CustomerFactory> */
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $attributes = [
         'apply_credit_to_next_invoice' => false,
@@ -101,6 +105,11 @@ class Customer extends Authenticatable implements FilamentUser, HasName
     public function getAuthPassword(): string
     {
         return '';
+    }
+
+    public function routeNotificationForMelipayamak(?object $notification = null): ?string
+    {
+        return $this->mobile;
     }
 
     #[Scope]

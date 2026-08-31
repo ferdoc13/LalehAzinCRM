@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Observers\OtpCodeObserver;
 use Database\Factories\OtpCodeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'expires_at',
     'is_used',
 ])]
+#[ObservedBy([OtpCodeObserver::class])]
 class OtpCode extends Model
 {
     /** @use HasFactory<OtpCodeFactory> */

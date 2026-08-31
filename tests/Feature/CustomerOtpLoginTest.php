@@ -3,10 +3,11 @@
 use App\Filament\Customer\Pages\Auth\CustomerLogin;
 use App\Models\Customer;
 use App\Models\OtpCode;
+use App\Notifications\OtpCodeNotification;
 use App\Services\OtpService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Livewire;
 
@@ -26,10 +27,10 @@ it('renders the customer login page at /login', function () {
         ->assertOk();
 });
 
-it('sends an otp for a registered mobile number and logs the code', function () {
+it('sends an otp for a registered mobile number via sms notification', function () {
     $customer = Customer::factory()->create(['mobile' => '09121234567']);
 
-    Log::spy();
+    Notification::fake();
 
     Livewire::test(CustomerLogin::class)
         ->fillForm(['mobile' => $customer->mobile])
@@ -46,11 +47,11 @@ it('sends an otp for a registered mobile number and logs the code', function () 
         ->and($otp->expires_at->greaterThan(now()->addMinute()))->toBeTrue()
         ->and($otp->expires_at->lessThanOrEqualTo(now()->addMinutes(2)))->toBeTrue();
 
-    Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context): bool => $message === 'Customer OTP generated'
-            && $context['mobile'] === $customer->mobile
-            && $context['code'] === $otp->code)
-        ->once();
+    Notification::assertSentTo(
+        $customer,
+        OtpCodeNotification::class,
+        fn (OtpCodeNotification $notification): bool => $notification->otpCode->is($otp),
+    );
 });
 
 it('rejects an unknown mobile number', function () {

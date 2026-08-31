@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\WithdrawalRequestStatus;
+use App\Observers\WithdrawalRequestObserver;
 use Database\Factories\WithdrawalRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'bank_account_id',
     'status',
 ])]
+#[ObservedBy([WithdrawalRequestObserver::class])]
 class WithdrawalRequest extends Model
 {
     /** @use HasFactory<WithdrawalRequestFactory> */

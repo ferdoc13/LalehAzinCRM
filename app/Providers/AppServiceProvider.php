@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Auth\CustomerGuard;
 use App\Auth\CustomerUserProvider;
+use App\Notifications\Channels\MelipayamakChannel;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Notification::extend('melipayamak', fn ($app) => $app->make(MelipayamakChannel::class));
+
         Auth::provider('customers', function (Application $app, array $config): CustomerUserProvider {
             return new CustomerUserProvider($app['hash'], $config['model']);
         });

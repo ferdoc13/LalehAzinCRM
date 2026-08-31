@@ -13,6 +13,8 @@ class CreateInvoice extends CreateRecord
 {
     protected static string $resource = InvoiceResource::class;
 
+    protected ?bool $hasDatabaseTransactions = true;
+
     protected bool $applyCustomerCredit = false;
 
     protected function mutateFormDataBeforeCreate(array $data): array

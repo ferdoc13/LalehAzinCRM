@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\InvoicePaymentStatus;
+use App\Observers\InvoiceObserver;
 use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'invoice_date',
     'payment_status',
 ])]
+#[ObservedBy([InvoiceObserver::class])]
 class Invoice extends Model
 {
     /** @use HasFactory<InvoiceFactory> */
