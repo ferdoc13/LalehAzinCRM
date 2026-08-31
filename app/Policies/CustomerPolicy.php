@@ -4,41 +4,53 @@ namespace App\Policies;
 
 use App\Models\Customer;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class CustomerPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function view(User $user, Customer $customer): bool
+    public function view(Authenticatable $actor, Customer $customer): bool
     {
-        return $user->canAccessAllRecords() || $customer->employee_id === $user->id;
+        if ($actor instanceof Customer) {
+            return $actor->is($customer);
+        }
+
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $customer->employee_id === $actor->id);
     }
 
-    public function create(User $user): bool
+    public function create(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function update(User $user, Customer $customer): bool
+    public function update(Authenticatable $actor, Customer $customer): bool
     {
-        return $user->canAccessAllRecords() || $customer->employee_id === $user->id;
+        if ($actor instanceof Customer) {
+            return $actor->is($customer);
+        }
+
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $customer->employee_id === $actor->id);
     }
 
-    public function delete(User $user, Customer $customer): bool
+    public function delete(Authenticatable $actor, Customer $customer): bool
     {
-        return $user->canAccessAllRecords() || $customer->employee_id === $user->id;
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $customer->employee_id === $actor->id);
     }
 
-    public function restore(User $user, Customer $customer): bool
+    public function restore(Authenticatable $actor, Customer $customer): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 
-    public function forceDelete(User $user, Customer $customer): bool
+    public function forceDelete(Authenticatable $actor, Customer $customer): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 }

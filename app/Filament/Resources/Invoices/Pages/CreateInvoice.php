@@ -42,5 +42,6 @@ class CreateInvoice extends CreateRecord
 
         app(CustomerCreditService::class)->applyAvailableCreditToInvoice($this->record);
         $this->record->refresh();
+        $this->record->customer()->update(['apply_credit_to_next_invoice' => false]);
     }
 }

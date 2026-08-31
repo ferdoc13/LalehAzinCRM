@@ -68,7 +68,7 @@ it('forbids an employee from viewing another employees invoice', function () {
 
     $this->actingAs($employee)
         ->get(InvoiceResource::getUrl('view', ['record' => $invoice]))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 it('creates an invoice with calculated line and invoice totals', function () {

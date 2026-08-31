@@ -1,7 +1,8 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Filament\Facades\Filament;
 use Tests\TestCase;
 
 /*
@@ -53,4 +54,14 @@ function something()
 function staffUser(string $role = 'employee'): User
 {
     return User::factory()->{$role}()->create();
+}
+
+function customerUser(): Customer
+{
+    $customer = Customer::factory()->create();
+
+    test()->actingAs($customer, 'customer');
+    Filament::setCurrentPanel('customer');
+
+    return $customer;
 }

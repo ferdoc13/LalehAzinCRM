@@ -52,7 +52,7 @@ it('forbids an employee from viewing another employees customer', function () {
 
     $this->actingAs($employee)
         ->get(CustomerResource::getUrl('view', ['record' => $foreign]))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 it('assigns the logged-in employee when creating a customer', function () {

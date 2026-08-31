@@ -36,4 +36,14 @@ class OtpCode extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at->isPast();
+    }
+
+    public function isValid(): bool
+    {
+        return ! $this->is_used && ! $this->isExpired();
+    }
 }

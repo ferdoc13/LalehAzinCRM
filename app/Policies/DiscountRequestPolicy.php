@@ -5,47 +5,50 @@ namespace App\Policies;
 use App\Enums\DiscountRequestStatus;
 use App\Models\DiscountRequest;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class DiscountRequestPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function view(User $user, DiscountRequest $discountRequest): bool
+    public function view(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
-        return $user->canAccessAllRecords() || $discountRequest->requested_by === $user->id;
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $discountRequest->requested_by === $actor->id);
     }
 
-    public function create(User $user): bool
+    public function create(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function update(User $user, DiscountRequest $discountRequest): bool
+    public function update(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
         return false;
     }
 
-    public function delete(User $user, DiscountRequest $discountRequest): bool
+    public function delete(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 
-    public function restore(User $user, DiscountRequest $discountRequest): bool
+    public function restore(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 
-    public function forceDelete(User $user, DiscountRequest $discountRequest): bool
+    public function forceDelete(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 
-    public function review(User $user, DiscountRequest $discountRequest): bool
+    public function review(Authenticatable $actor, DiscountRequest $discountRequest): bool
     {
-        return $user->canAccessAllRecords()
+        return $actor instanceof User
+            && $actor->canAccessAllRecords()
             && $discountRequest->status === DiscountRequestStatus::Pending;
     }
 }

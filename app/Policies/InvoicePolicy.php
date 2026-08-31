@@ -2,43 +2,56 @@
 
 namespace App\Policies;
 
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class InvoicePolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        if ($actor instanceof Customer) {
+            return true;
+        }
+
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function view(User $user, Invoice $invoice): bool
+    public function view(Authenticatable $actor, Invoice $invoice): bool
     {
-        return $user->canAccessAllRecords() || $invoice->employee_id === $user->id;
+        if ($actor instanceof Customer) {
+            return $invoice->customer_id === $actor->id;
+        }
+
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $invoice->employee_id === $actor->id);
     }
 
-    public function create(User $user): bool
+    public function create(Authenticatable $actor): bool
     {
-        return $user->isStaff();
+        return $actor instanceof User && $actor->isStaff();
     }
 
-    public function update(User $user, Invoice $invoice): bool
+    public function update(Authenticatable $actor, Invoice $invoice): bool
     {
-        return $user->canAccessAllRecords() || $invoice->employee_id === $user->id;
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $invoice->employee_id === $actor->id);
     }
 
-    public function delete(User $user, Invoice $invoice): bool
+    public function delete(Authenticatable $actor, Invoice $invoice): bool
     {
-        return $user->canAccessAllRecords() || $invoice->employee_id === $user->id;
+        return $actor instanceof User
+            && ($actor->canAccessAllRecords() || $invoice->employee_id === $actor->id);
     }
 
-    public function restore(User $user, Invoice $invoice): bool
+    public function restore(Authenticatable $actor, Invoice $invoice): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 
-    public function forceDelete(User $user, Invoice $invoice): bool
+    public function forceDelete(Authenticatable $actor, Invoice $invoice): bool
     {
-        return $user->canAccessAllRecords();
+        return $actor instanceof User && $actor->canAccessAllRecords();
     }
 }

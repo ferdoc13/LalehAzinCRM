@@ -38,6 +38,12 @@ class CustomerInfolist
                         app(CustomerCreditService::class)->getBalance($record),
                         precision: 0,
                     ).' ریال'),
+                TextEntry::make('apply_credit_to_next_invoice')
+                    ->label('اعمال روی فاکتور بعدی')
+                    ->state(fn (Customer $record): string => $record->apply_credit_to_next_invoice
+                        ? 'مشتری درخواست کرده است'
+                        : 'خیر')
+                    ->visible(fn (?Customer $record): bool => (bool) $record?->apply_credit_to_next_invoice),
                 Section::make('اطلاعات شرکت')
                     ->visible(fn ($record): bool => $record?->type === CustomerType::Company)
                     ->schema([

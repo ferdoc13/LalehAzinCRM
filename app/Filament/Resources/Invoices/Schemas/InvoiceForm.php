@@ -26,7 +26,10 @@ class InvoiceForm
                 CustomerSelect::make()
                     ->placeholder('جستجوی نام، موبایل یا کد ملی')
                     ->live()
-                    ->afterStateUpdated(fn (Set $set) => $set('apply_customer_credit', false)),
+                    ->afterStateUpdated(function (Set $set, mixed $state): void {
+                        $customer = $state ? Customer::query()->find($state) : null;
+                        $set('apply_customer_credit', (bool) $customer?->apply_credit_to_next_invoice);
+                    }),
                 TextInput::make('invoice_number')
                     ->label('شماره فاکتور')
                     ->placeholder('در صورت خالی بودن به‌صورت خودکار ساخته می‌شود')
