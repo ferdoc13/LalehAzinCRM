@@ -42,7 +42,7 @@ class PendingDiscountRequestsWidget extends TableWidget
                     ->numeric(decimalPlaces: 0),
                 TextColumn::make('created_at')
                     ->label('تاریخ ثبت')
-                    ->since(),
+                    ->jalaliDateTime('Y/m/d H:i'),
             ])
             ->recordActions([
                 ViewAction::make()

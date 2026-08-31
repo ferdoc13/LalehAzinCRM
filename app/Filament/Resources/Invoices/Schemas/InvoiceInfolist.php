@@ -20,7 +20,7 @@ class InvoiceInfolist
                     ->label('کارمند ثبت‌کننده'),
                 TextEntry::make('invoice_date')
                     ->label('تاریخ فاکتور')
-                    ->date(),
+                    ->jalaliDate('Y/m/d'),
                 TextEntry::make('payment_status')
                     ->label('وضعیت پرداخت')
                     ->badge(),

@@ -54,11 +54,11 @@ class Reports extends Page
                 DatePicker::make('from')
                     ->label('از تاریخ')
                     ->default(now()->startOfMonth())
-                    ->native(false),
+                    ->jalali(),
                 DatePicker::make('until')
                     ->label('تا تاریخ')
                     ->default(now())
-                    ->native(false)
+                    ->jalali()
                     ->afterOrEqual('from'),
             ]);
     }

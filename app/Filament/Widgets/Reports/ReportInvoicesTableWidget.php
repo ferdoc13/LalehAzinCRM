@@ -58,7 +58,7 @@ class ReportInvoicesTableWidget extends TableWidget
                     ->toggleable(),
                 TextColumn::make('invoice_date')
                     ->label('تاریخ')
-                    ->date()
+                    ->jalaliDate('Y/m/d')
                     ->sortable(),
                 TextColumn::make('payment_status')
                     ->label('وضعیت پرداخت')

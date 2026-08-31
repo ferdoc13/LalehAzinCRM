@@ -26,12 +26,14 @@ class InvoiceExporter extends Exporter
             ExportColumn::make('discount_amount')
                 ->label('تخفیف اعتبار'),
             ExportColumn::make('invoice_date')
-                ->label('تاریخ فاکتور'),
+                ->label('تاریخ فاکتور')
+                ->formatStateUsing(fn ($state) => jalali_format($state)),
             ExportColumn::make('payment_status')
                 ->label('وضعیت پرداخت')
                 ->formatStateUsing(fn ($state) => $state?->getLabel() ?? $state),
             ExportColumn::make('created_at')
-                ->label('تاریخ ثبت'),
+                ->label('تاریخ ثبت')
+                ->formatStateUsing(fn ($state) => jalali_format($state, 'Y/m/d H:i')),
         ];
     }
 

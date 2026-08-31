@@ -38,6 +38,7 @@ class InvoiceForm
                 DatePicker::make('invoice_date')
                     ->label('تاریخ فاکتور')
                     ->default(now())
+                    ->jalali()
                     ->required(),
                 Select::make('payment_status')
                     ->label('وضعیت پرداخت')

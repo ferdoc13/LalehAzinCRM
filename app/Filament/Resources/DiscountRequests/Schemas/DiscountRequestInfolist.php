@@ -30,11 +30,11 @@ class DiscountRequestInfolist
                     ->placeholder('-'),
                 TextEntry::make('reviewed_at')
                     ->label('تاریخ بررسی')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->label('تاریخ ثبت')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->placeholder('-'),
             ]);
     }

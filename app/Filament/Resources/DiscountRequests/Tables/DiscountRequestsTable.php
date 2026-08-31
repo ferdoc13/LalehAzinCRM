@@ -47,12 +47,12 @@ class DiscountRequestsTable
                     ->toggleable(),
                 TextColumn::make('reviewed_at')
                     ->label('تاریخ بررسی')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->placeholder('-')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('تاریخ ثبت')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

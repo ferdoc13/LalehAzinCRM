@@ -49,7 +49,7 @@ class UsersTable
                     ->color(fn (string $state): string => $state === 'مسدود' ? 'danger' : 'success'),
                 TextColumn::make('created_at')
                     ->label('تاریخ ثبت')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

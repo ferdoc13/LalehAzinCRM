@@ -20,7 +20,7 @@ class InvoicesTable
                     ->sortable(),
                 TextColumn::make('invoice_date')
                     ->label('تاریخ')
-                    ->date()
+                    ->jalaliDate('Y/m/d')
                     ->sortable(),
                 TextColumn::make('total_amount')
                     ->label('مبلغ کل')

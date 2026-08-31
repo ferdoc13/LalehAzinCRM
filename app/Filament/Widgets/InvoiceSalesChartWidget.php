@@ -64,7 +64,7 @@ class InvoiceSalesChartWidget extends ChartWidget
             $key = $month->format('Y-m');
             $row = $rows->get($key);
 
-            $labels[] = $month->translatedFormat('M Y');
+            $labels[] = jalali_format($month, 'F Y');
             $data[] = $useCount
                 ? (int) ($row->invoices_count ?? 0)
                 : (float) ($row->sales_total ?? 0);

@@ -26,7 +26,7 @@ class CreditLedgersRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('created_at')
                     ->label('تاریخ')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->sortable(),
                 TextColumn::make('transaction_type')
                     ->label('نوع تراکنش')

@@ -54,7 +54,7 @@ class PaidDiscountsTableWidget extends TableWidget
                     ->toggleable(),
                 TextColumn::make('updated_at')
                     ->label('تاریخ واریز')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->sortable(),
             ])
             ->defaultSort('updated_at', 'desc')

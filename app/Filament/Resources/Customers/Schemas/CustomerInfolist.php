@@ -64,7 +64,7 @@ class CustomerInfolist
                     ->columnSpanFull(),
                 TextEntry::make('created_at')
                     ->label('تاریخ ثبت')
-                    ->dateTime()
+                    ->jalaliDateTime('Y/m/d H:i')
                     ->placeholder('-'),
             ]);
     }
