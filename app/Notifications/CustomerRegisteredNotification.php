@@ -15,8 +15,10 @@ class CustomerRegisteredNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::General,
-            patternKey: 'customer_registered',
-            params: [$firstName, $lastName],
+            text: $this->messageText('customer_registered', [
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+            ]),
         );
     }
 }

@@ -40,4 +40,18 @@ abstract class MelipayamakNotification extends Notification implements ShouldQue
     {
         return number_format((float) $amount, 0, '.', ',');
     }
+
+    /**
+     * @param  array<string, scalar>  $replacements
+     */
+    protected function messageText(string $messageKey, array $replacements): string
+    {
+        $template = (string) config("sms.messages.{$messageKey}", '');
+
+        return str_replace(
+            array_map(fn (string $key): string => '{'.$key.'}', array_keys($replacements)),
+            array_map(strval(...), array_values($replacements)),
+            $template,
+        );
+    }
 }

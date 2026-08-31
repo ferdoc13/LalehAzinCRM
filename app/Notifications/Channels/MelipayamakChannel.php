@@ -35,23 +35,7 @@ class MelipayamakChannel
                 continue;
             }
 
-            $this->deliver((string) $phone, $message);
+            $this->sms->send((string) $phone, $message->text, $message->eventType);
         }
-    }
-
-    private function deliver(string $phone, MelipayamakMessage $message): void
-    {
-        if ($message->isOtp && filled($message->otpCode)) {
-            $this->sms->sendOtp($phone, (string) $message->otpCode);
-
-            return;
-        }
-
-        $this->sms->sendByPattern(
-            $phone,
-            (string) config("sms.patterns.{$message->patternKey}"),
-            $message->params,
-            $message->eventType,
-        );
     }
 }

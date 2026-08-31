@@ -19,8 +19,11 @@ class InvoiceCreatedNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::Invoice,
-            patternKey: 'invoice_created',
-            params: [$name, $invoice->invoice_number, $total],
+            text: $this->messageText('invoice_created', [
+                'name' => $name,
+                'invoice_number' => $invoice->invoice_number,
+                'total_amount' => $total,
+            ]),
         );
     }
 }

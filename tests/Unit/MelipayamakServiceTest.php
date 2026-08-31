@@ -17,15 +17,16 @@ beforeEach(function () {
     config([
         'sms.enabled' => true,
         'sms.api_key' => 'test-api-key',
-        'sms.patterns.otp' => '11111',
+        'sms.from' => '2134856',
+        'sms.messages.otp' => 'کد تأیید شما: {code}',
         'sms.timeout' => 5,
         'sms.connect_timeout' => 2,
     ]);
 });
 
-it('sends otp by pattern through the console api and logs success', function () {
+it('sends otp from the dedicated line through the console simple api', function () {
     Http::fake([
-        'console.melipayamak.com/api/send/shared/*' => Http::response([
+        'console.melipayamak.com/api/send/simple/*' => Http::response([
             'recId' => 987654321,
             'status' => 'ارسال موفق',
         ]),
@@ -37,16 +38,16 @@ it('sends otp by pattern through the console api and logs success', function () 
         ->recipient->toBe('09121234567')
         ->event_type->toBe(SmsEventType::Otp)
         ->send_status->toBe(SmsSendStatus::Sent)
-        ->and($log->content)->toContain('123456');
+        ->and($log->content)->toBe('کد تأیید شما: 123456');
 
-    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://console.melipayamak.com/api/send/shared/test-api-key'
-        && $request['bodyId'] === 11111
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://console.melipayamak.com/api/send/simple/test-api-key'
+        && $request['from'] === '2134856'
         && $request['to'] === '09121234567'
-        && $request['args'] === ['123456']);
+        && $request['text'] === 'کد تأیید شما: 123456');
 });
 
-it('does not send when the pattern code is empty', function () {
-    config(['sms.patterns.otp' => null]);
+it('does not send when the sender line is empty', function () {
+    config(['sms.from' => null]);
 
     Http::fake();
 
@@ -54,23 +55,22 @@ it('does not send when the pattern code is empty', function () {
 
     expect($log)
         ->send_status->toBe(SmsSendStatus::Failed)
-        ->service_response->toBe('کد پترن خدماتی تنظیم نشده است.');
+        ->service_response->toBe('شماره خط ارسال‌کننده تنظیم نشده است.');
 
     Http::assertNothingSent();
 });
 
 it('logs a failed sms when the provider returns an error', function () {
     Http::fake([
-        'console.melipayamak.com/api/send/shared/*' => Http::response([
+        'console.melipayamak.com/api/send/simple/*' => Http::response([
             'recId' => 0,
             'status' => 'اعتبار کافی نیست',
         ], 200),
     ]);
 
-    $log = app(MelipayamakService::class)->sendByPattern(
+    $log = app(MelipayamakService::class)->send(
         '09121112233',
-        '22222',
-        ['علی', '1000'],
+        'متن آزمایشی',
         SmsEventType::Invoice,
     );
 
@@ -85,7 +85,7 @@ it('does not call the provider when sms is disabled', function () {
 
     Http::fake();
 
-    $log = app(MelipayamakService::class)->sendByPattern('09121112233', '22222', ['علی']);
+    $log = app(MelipayamakService::class)->send('09121112233', 'متن آزمایشی');
 
     expect($log->send_status)->toBe(SmsSendStatus::Failed)
         ->and($log->service_response)->toBe('ارسال پیامک غیرفعال است.');

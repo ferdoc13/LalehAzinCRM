@@ -20,8 +20,12 @@ class DiscountAppliedNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::Discount,
-            patternKey: 'discount_applied',
-            params: [$name, $invoice->invoice_number, $discount, $total],
+            text: $this->messageText('discount_applied', [
+                'name' => $name,
+                'invoice_number' => $invoice->invoice_number,
+                'discount_amount' => $discount,
+                'total_amount' => $total,
+            ]),
         );
     }
 }

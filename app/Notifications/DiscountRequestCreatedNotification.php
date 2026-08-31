@@ -19,8 +19,10 @@ class DiscountRequestCreatedNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::Discount,
-            patternKey: 'discount_request_created',
-            params: [$customerName, $amount],
+            text: $this->messageText('discount_request_created', [
+                'customer_name' => $customerName,
+                'proposed_amount' => $amount,
+            ]),
         );
     }
 }

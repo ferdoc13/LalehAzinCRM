@@ -19,8 +19,10 @@ class WithdrawalCompletedNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::Withdrawal,
-            patternKey: 'withdrawal_completed',
-            params: [$name, $amount],
+            text: $this->messageText('withdrawal_completed', [
+                'name' => $name,
+                'amount' => $amount,
+            ]),
         );
     }
 }

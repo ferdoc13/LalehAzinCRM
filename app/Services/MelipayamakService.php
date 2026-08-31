@@ -16,47 +16,41 @@ class MelipayamakService
 {
     public function sendOtp(string $phone, string $code): SmsLog
     {
-        return $this->sendByPattern(
+        return $this->send(
             $phone,
-            (string) config('sms.patterns.otp'),
-            [$code],
+            str_replace('{code}', $code, (string) config('sms.messages.otp')),
             SmsEventType::Otp,
-            'پترن otp: '.$code,
         );
     }
 
-    /**
-     * @param  array<int|string, scalar>  $params
-     */
-    public function sendByPattern(
+    public function send(
         string $phone,
-        string $patternCode,
-        array $params,
+        string $text,
         SmsEventType $eventType = SmsEventType::General,
-        ?string $content = null,
     ): SmsLog {
-        $values = array_map(strval(...), array_values($params));
-        $content ??= 'پترن '.$patternCode.': '.implode(';', $values);
-
         if (! $this->isEnabled()) {
-            return $this->record($phone, $content, $eventType, SmsSendStatus::Failed, 'ارسال پیامک غیرفعال است.');
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'ارسال پیامک غیرفعال است.');
         }
 
         if (blank(config('sms.api_key'))) {
-            return $this->record($phone, $content, $eventType, SmsSendStatus::Failed, 'کلید API ملی پیامک تنظیم نشده است.');
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'کلید API ملی پیامک تنظیم نشده است.');
         }
 
-        if (blank($patternCode)) {
-            return $this->record($phone, $content, $eventType, SmsSendStatus::Failed, 'کد پترن خدماتی تنظیم نشده است.');
+        if (blank(config('sms.from'))) {
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'شماره خط ارسال‌کننده تنظیم نشده است.');
+        }
+
+        if (blank($text)) {
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'متن پیامک خالی است.');
         }
 
         try {
-            $response = $this->postShared($phone, $patternCode, $values);
+            $response = $this->postSimple($phone, $text);
         } catch (Throwable $exception) {
-            return $this->recordFailedRequest($phone, $content, $eventType, $exception);
+            return $this->recordFailedRequest($phone, $text, $eventType, $exception);
         }
 
-        return $this->recordFromResponse($phone, $content, $eventType, $response);
+        return $this->recordFromResponse($phone, $text, $eventType, $response);
     }
 
     public function normalizePhone(string $phone): string
@@ -76,17 +70,14 @@ class MelipayamakService
         return (bool) config('sms.enabled');
     }
 
-    /**
-     * @param  list<string>  $values
-     */
-    private function postShared(string $phone, string $patternCode, array $values): Response
+    private function postSimple(string $phone, string $text): Response
     {
         return $this->http()
             ->asJson()
-            ->post('https://console.melipayamak.com/api/send/shared/'.config('sms.api_key'), [
-                'bodyId' => (int) $patternCode,
+            ->post('https://console.melipayamak.com/api/send/simple/'.config('sms.api_key'), [
+                'from' => (string) config('sms.from'),
                 'to' => $this->normalizePhone($phone),
-                'args' => $values,
+                'text' => $text,
             ]);
     }
 

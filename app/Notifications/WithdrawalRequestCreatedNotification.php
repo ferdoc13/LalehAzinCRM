@@ -19,8 +19,10 @@ class WithdrawalRequestCreatedNotification extends MelipayamakNotification
 
         return new MelipayamakMessage(
             eventType: SmsEventType::Withdrawal,
-            patternKey: 'withdrawal_request_created',
-            params: [$name, $amount],
+            text: $this->messageText('withdrawal_request_created', [
+                'name' => $name,
+                'amount' => $amount,
+            ]),
         );
     }
 }

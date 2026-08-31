@@ -8,8 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | When disabled, notifications still queue but Melipayamak is not called.
-    | Each attempt is recorded on sms_logs as failed so local/dev stays safe
-    | until pattern codes are filled in from the Melipayamak console.
+    | Each attempt is recorded on sms_logs as failed so local/dev stays safe.
     |
     */
 
@@ -20,12 +19,14 @@ return [
     | Melipayamak console credentials
     |--------------------------------------------------------------------------
     |
-    | Uses https://console.melipayamak.com with an API key. Shared patterns
-    | (خدماتی) are required; raw/simple SMS is not used.
+    | Uses https://console.melipayamak.com with an API key. Messages are sent
+    | from the dedicated service line (ارسال ساده), not shared patterns.
     |
     */
 
     'api_key' => env('MELIPAYAMAK_API_KEY'),
+
+    'from' => env('MELIPAYAMAK_FROM'),
 
     'timeout' => (int) env('MELIPAYAMAK_TIMEOUT', 10),
 
@@ -48,39 +49,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Pattern codes (bodyId)
+    | Message templates
     |--------------------------------------------------------------------------
     |
-    | Fill each value with the numeric pattern code from the Melipayamak
-    | console. Arguments are sent in the documented order as {0}, {1}, …
+    | Sent as the SMS body from the dedicated line. Placeholders like {name}
+    | are replaced before calling the console simple-send API.
     |
     */
 
-    'patterns' => [
+    'messages' => [
 
-        // {0} code
-        'otp' => env('SMS_PATTERN_OTP'),
+        'otp' => 'کد تأیید شما: {code}',
 
-        // {0} first_name  {1} last_name
-        'customer_registered' => env('SMS_PATTERN_CUSTOMER_REGISTERED'),
+        'customer_registered' => '{first_name} {last_name} عزیز، ثبت‌نام شما در لاله‌آذین با موفقیت انجام شد.',
 
-        // {0} full_name  {1} invoice_number  {2} total_amount
-        'invoice_created' => env('SMS_PATTERN_INVOICE_CREATED'),
+        'invoice_created' => '{name} عزیز، فاکتور {invoice_number} به مبلغ {total_amount} ریال صادر شد.',
 
-        // {0} customer_name  {1} proposed_amount
-        'discount_request_created' => env('SMS_PATTERN_DISCOUNT_REQUEST_CREATED'),
+        'discount_request_created' => 'درخواست تخفیف جدید برای {customer_name} به مبلغ {proposed_amount} ریال ثبت شد.',
 
-        // {0} full_name  {1} status_label  {2} amount
-        'discount_reviewed' => env('SMS_PATTERN_DISCOUNT_REVIEWED'),
+        'discount_reviewed' => '{name} عزیز، درخواست تخفیف شما «{status}» شد. مبلغ نهایی: {amount} ریال.',
 
-        // {0} full_name  {1} invoice_number  {2} discount_amount  {3} total_amount
-        'discount_applied' => env('SMS_PATTERN_DISCOUNT_APPLIED'),
+        'discount_applied' => '{name} عزیز، تخفیف {discount_amount} ریال روی فاکتور {invoice_number} اعمال شد. مبلغ قابل پرداخت: {total_amount} ریال.',
 
-        // {0} full_name  {1} amount
-        'withdrawal_request_created' => env('SMS_PATTERN_WITHDRAWAL_REQUEST_CREATED'),
+        'withdrawal_request_created' => '{name} عزیز، درخواست واریز مبلغ {amount} ریال ثبت شد و در انتظار بررسی است.',
 
-        // {0} full_name  {1} amount
-        'withdrawal_completed' => env('SMS_PATTERN_WITHDRAWAL_COMPLETED'),
+        'withdrawal_completed' => '{name} عزیز، درخواست واریز مبلغ {amount} ریال انجام شد.',
 
     ],
 
