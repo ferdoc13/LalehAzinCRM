@@ -2,6 +2,9 @@
 
 namespace Database\Seeders\Support;
 
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
+
 class PersianFaker
 {
     /** @var list<string> */
@@ -57,68 +60,75 @@ class PersianFaker
         'طراحی و توسعه سفارشی',
     ];
 
+    private static ?Generator $faker = null;
+
+    public static function faker(): Generator
+    {
+        return self::$faker ??= FakerFactory::create((string) config('app.faker_locale', 'en_US'));
+    }
+
     public static function firstName(): string
     {
-        return fake()->randomElement(self::FIRST_NAMES);
+        return self::faker()->randomElement(self::FIRST_NAMES);
     }
 
     public static function lastName(): string
     {
-        return fake()->randomElement(self::LAST_NAMES);
+        return self::faker()->randomElement(self::LAST_NAMES);
     }
 
     public static function companyName(): string
     {
-        return fake()->randomElement(self::COMPANY_NAMES);
+        return self::faker()->randomElement(self::COMPANY_NAMES);
     }
 
     public static function bankName(): string
     {
-        return 'بانک '.fake()->randomElement(self::BANKS);
+        return 'بانک '.self::faker()->randomElement(self::BANKS);
     }
 
     public static function address(): string
     {
-        return fake()->randomElement(self::ADDRESSES);
+        return self::faker()->randomElement(self::ADDRESSES);
     }
 
     public static function mobile(): string
     {
-        return '09'.fake()->unique()->numerify('#########');
+        return '09'.self::faker()->unique()->numerify('#########');
     }
 
     public static function nationalCode(): string
     {
-        return fake()->unique()->numerify('##########');
+        return self::faker()->unique()->numerify('##########');
     }
 
     public static function nationalId(): string
     {
-        return fake()->unique()->numerify('###########');
+        return self::faker()->unique()->numerify('###########');
     }
 
     public static function economicCode(): string
     {
-        return fake()->numerify('############');
+        return self::faker()->numerify('############');
     }
 
     public static function shebaNumber(): string
     {
-        return 'IR'.fake()->numerify('########################');
+        return 'IR'.self::faker()->numerify('########################');
     }
 
     public static function accountNumber(): string
     {
-        return fake()->numerify('##########');
+        return self::faker()->numerify('##########');
     }
 
     public static function otpCode(): string
     {
-        return fake()->numerify('######');
+        return self::faker()->numerify('######');
     }
 
     public static function productDescription(): string
     {
-        return fake()->randomElement(self::PRODUCT_DESCRIPTIONS);
+        return self::faker()->randomElement(self::PRODUCT_DESCRIPTIONS);
     }
 }

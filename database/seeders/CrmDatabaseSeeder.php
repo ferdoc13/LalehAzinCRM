@@ -16,6 +16,7 @@ use App\Models\WithdrawalRequest;
 use Database\Seeders\Support\PersianFaker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class CrmDatabaseSeeder extends Seeder
 {
@@ -52,13 +53,13 @@ class CrmDatabaseSeeder extends Seeder
 
         foreach ($customers as $customer) {
             CustomerBankAccount::factory()
-                ->count(fake()->numberBetween(1, 2))
+                ->count(random_int(1, 2))
                 ->create(['customer_id' => $customer->id]);
         }
 
         foreach ($customers->random(15) as $customer) {
             Invoice::factory()
-                ->withItems(fake()->numberBetween(2, 5))
+                ->withItems(random_int(2, 5))
                 ->create([
                     'customer_id' => $customer->id,
                     'employee_id' => $allEmployees->random()->id,
@@ -123,9 +124,9 @@ class CrmDatabaseSeeder extends Seeder
                 'customer_id' => $customer->id,
                 'credit_ledger_id' => $ledger?->id,
                 'discount_request_id' => $ledger?->discount_request_id,
-                'amount' => fake()->randomFloat(2, 100_000, 1_000_000),
+                'amount' => PersianFaker::faker()->randomFloat(2, 100_000, 1_000_000),
                 'bank_account_id' => $bankAccount->id,
-                'status' => fake()->randomElement(WithdrawalRequestStatus::cases()),
+                'status' => Arr::random(WithdrawalRequestStatus::cases()),
             ]);
         }
 
