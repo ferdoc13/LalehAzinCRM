@@ -47,22 +47,11 @@ class MelipayamakChannel
             return;
         }
 
-        $patternCode = config("sms.patterns.{$message->patternKey}");
-
-        if (filled($patternCode)) {
-            $this->sms->sendByPattern(
-                $phone,
-                (string) $patternCode,
-                $message->params,
-                $message->eventType,
-                $message->text,
-            );
-
-            return;
-        }
-
-        if (filled($message->text)) {
-            $this->sms->sendRaw($phone, $message->text, $message->eventType);
-        }
+        $this->sms->sendByPattern(
+            $phone,
+            (string) config("sms.patterns.{$message->patternKey}"),
+            $message->params,
+            $message->eventType,
+        );
     }
 }

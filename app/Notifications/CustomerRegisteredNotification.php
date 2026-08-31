@@ -17,10 +17,6 @@ class CustomerRegisteredNotification extends MelipayamakNotification
             eventType: SmsEventType::General,
             patternKey: 'customer_registered',
             params: [$firstName, $lastName],
-            text: $this->fallbackText('customer_registered', [
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-            ]),
         );
     }
 }

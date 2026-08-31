@@ -9,7 +9,7 @@ return [
     |
     | When disabled, notifications still queue but Melipayamak is not called.
     | Each attempt is recorded on sms_logs as failed so local/dev stays safe
-    | until pattern codes are filled in from the Melipayamak panel.
+    | until pattern codes are filled in from the Melipayamak console.
     |
     */
 
@@ -17,26 +17,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Melipayamak credentials
+    | Melipayamak console credentials
     |--------------------------------------------------------------------------
     |
-    | driver: auto | console | rest
-    |   auto    — console REST when MELIPAYAMAK_API_KEY is set, otherwise
-    |             classic REST (username/password) from the official SDK.
-    |   console — https://console.melipayamak.com (API key / token)
-    |   rest    — https://rest.payamak-panel.com (username/password)
+    | Uses https://console.melipayamak.com with an API key. Shared patterns
+    | (خدماتی) are required; raw/simple SMS is not used.
     |
     */
 
-    'driver' => env('MELIPAYAMAK_DRIVER', 'auto'),
-
     'api_key' => env('MELIPAYAMAK_API_KEY'),
-
-    'username' => env('MELIPAYAMAK_USERNAME'),
-
-    'password' => env('MELIPAYAMAK_PASSWORD'),
-
-    'from' => env('MELIPAYAMAK_FROM'),
 
     'timeout' => (int) env('MELIPAYAMAK_TIMEOUT', 10),
 
@@ -63,9 +52,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Fill each value with the numeric pattern code from the Melipayamak
-    | panel. Arguments are sent in the documented order as {0}, {1}, …
-    | When a code is empty, the matching fallback_messages text is sent
-    | with sendRaw() instead.
+    | console. Arguments are sent in the documented order as {0}, {1}, …
     |
     */
 
@@ -94,26 +81,6 @@ return [
 
         // {0} full_name  {1} amount
         'withdrawal_completed' => env('SMS_PATTERN_WITHDRAWAL_COMPLETED'),
-
-    ],
-
-    'fallback_messages' => [
-
-        'otp' => 'کد تأیید شما: {code}',
-
-        'customer_registered' => '{first_name} {last_name} عزیز، ثبت‌نام شما در لاله‌آذین با موفقیت انجام شد.',
-
-        'invoice_created' => '{name} عزیز، فاکتور {invoice_number} به مبلغ {total_amount} ریال صادر شد.',
-
-        'discount_request_created' => 'درخواست تخفیف جدید برای {customer_name} به مبلغ {proposed_amount} ریال ثبت شد.',
-
-        'discount_reviewed' => '{name} عزیز، درخواست تخفیف شما «{status}» شد. مبلغ نهایی: {amount} ریال.',
-
-        'discount_applied' => '{name} عزیز، تخفیف {discount_amount} ریال روی فاکتور {invoice_number} اعمال شد. مبلغ قابل پرداخت: {total_amount} ریال.',
-
-        'withdrawal_request_created' => '{name} عزیز، درخواست واریز مبلغ {amount} ریال ثبت شد و در انتظار بررسی است.',
-
-        'withdrawal_completed' => '{name} عزیز، درخواست واریز مبلغ {amount} ریال انجام شد.',
 
     ],
 

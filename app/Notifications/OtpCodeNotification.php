@@ -18,7 +18,6 @@ class OtpCodeNotification extends MelipayamakNotification
             eventType: SmsEventType::Otp,
             patternKey: 'otp',
             params: [$code],
-            text: $this->fallbackText('otp', ['code' => $code]),
             isOtp: true,
             otpCode: $code,
         );

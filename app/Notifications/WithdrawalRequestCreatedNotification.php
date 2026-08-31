@@ -21,10 +21,6 @@ class WithdrawalRequestCreatedNotification extends MelipayamakNotification
             eventType: SmsEventType::Withdrawal,
             patternKey: 'withdrawal_request_created',
             params: [$name, $amount],
-            text: $this->fallbackText('withdrawal_request_created', [
-                'name' => $name,
-                'amount' => $amount,
-            ]),
         );
     }
 }

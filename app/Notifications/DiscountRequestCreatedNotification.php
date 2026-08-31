@@ -21,10 +21,6 @@ class DiscountRequestCreatedNotification extends MelipayamakNotification
             eventType: SmsEventType::Discount,
             patternKey: 'discount_request_created',
             params: [$customerName, $amount],
-            text: $this->fallbackText('discount_request_created', [
-                'customer_name' => $customerName,
-                'proposed_amount' => $amount,
-            ]),
         );
     }
 }

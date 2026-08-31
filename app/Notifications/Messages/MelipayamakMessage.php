@@ -13,7 +13,6 @@ final readonly class MelipayamakMessage
         public SmsEventType $eventType,
         public string $patternKey,
         public array $params = [],
-        public ?string $text = null,
         public bool $isOtp = false,
         public ?string $otpCode = null,
     ) {}

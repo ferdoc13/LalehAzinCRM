@@ -22,11 +22,6 @@ class DiscountReviewedNotification extends MelipayamakNotification
             eventType: SmsEventType::Discount,
             patternKey: 'discount_reviewed',
             params: [$name, $status, $amount],
-            text: $this->fallbackText('discount_reviewed', [
-                'name' => $name,
-                'status' => $status,
-                'amount' => $amount,
-            ]),
         );
     }
 }

@@ -16,11 +16,7 @@ beforeEach(function () {
 
     config([
         'sms.enabled' => true,
-        'sms.driver' => 'auto',
         'sms.api_key' => 'test-api-key',
-        'sms.username' => 'user',
-        'sms.password' => 'secret',
-        'sms.from' => '5000',
         'sms.patterns.otp' => '11111',
         'sms.timeout' => 5,
         'sms.connect_timeout' => 2,
@@ -49,59 +45,34 @@ it('sends otp by pattern through the console api and logs success', function () 
         && $request['args'] === ['123456']);
 });
 
-it('falls back to raw send when the otp pattern is empty', function () {
+it('does not send when the pattern code is empty', function () {
     config(['sms.patterns.otp' => null]);
 
-    Http::fake([
-        'console.melipayamak.com/api/send/simple/*' => Http::response([
-            'recId' => 111,
-            'status' => 'ارسال موفق',
-        ]),
-    ]);
+    Http::fake();
 
     $log = app(MelipayamakService::class)->sendOtp('09121234567', '654321');
 
-    expect($log->send_status)->toBe(SmsSendStatus::Sent);
-
-    Http::assertSent(fn (Request $request): bool => str_contains($request->url(), '/send/simple/')
-        && $request['text'] === 'کد تأیید شما: 654321');
-});
-
-it('sends by pattern through classic rest when only username and password are set', function () {
-    config([
-        'sms.api_key' => null,
-        'sms.driver' => 'rest',
-    ]);
-
-    Http::fake([
-        'rest.payamak-panel.com/api/SendSMS/BaseServiceNumber' => Http::response([
-            'Value' => '555666',
-            'RetStatus' => 1,
-            'StrRetStatus' => 'Ok',
-        ]),
-    ]);
-
-    $log = app(MelipayamakService::class)->sendByPattern('09120001122', '22222', ['علی', '1000']);
-
     expect($log)
-        ->send_status->toBe(SmsSendStatus::Sent)
-        ->event_type->toBe(SmsEventType::General);
+        ->send_status->toBe(SmsSendStatus::Failed)
+        ->service_response->toBe('کد پترن خدماتی تنظیم نشده است.');
 
-    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber'
-        && (int) $request['bodyId'] === 22222
-        && $request['text'] === 'علی;1000'
-        && $request['username'] === 'user');
+    Http::assertNothingSent();
 });
 
 it('logs a failed sms when the provider returns an error', function () {
     Http::fake([
-        'console.melipayamak.com/api/send/simple/*' => Http::response([
+        'console.melipayamak.com/api/send/shared/*' => Http::response([
             'recId' => 0,
             'status' => 'اعتبار کافی نیست',
         ], 200),
     ]);
 
-    $log = app(MelipayamakService::class)->sendRaw('09121112233', 'متن آزمایشی', SmsEventType::Invoice);
+    $log = app(MelipayamakService::class)->sendByPattern(
+        '09121112233',
+        '22222',
+        ['علی', '1000'],
+        SmsEventType::Invoice,
+    );
 
     expect($log)
         ->send_status->toBe(SmsSendStatus::Failed)
@@ -114,7 +85,7 @@ it('does not call the provider when sms is disabled', function () {
 
     Http::fake();
 
-    $log = app(MelipayamakService::class)->sendRaw('09121112233', 'متن آزمایشی');
+    $log = app(MelipayamakService::class)->sendByPattern('09121112233', '22222', ['علی']);
 
     expect($log->send_status)->toBe(SmsSendStatus::Failed)
         ->and($log->service_response)->toBe('ارسال پیامک غیرفعال است.');
