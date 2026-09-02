@@ -16,19 +16,23 @@ beforeEach(function () {
 
     config([
         'sms.enabled' => true,
-        'sms.api_key' => 'test-api-key',
-        'sms.from' => '2134856',
+        'sms.username' => 'panel-user',
+        'sms.password' => 'panel-api-key',
+        'sms.from' => '50001234',
+        'sms.from_support_one' => '50005678',
+        'sms.from_support_two' => '',
         'sms.messages.otp' => 'کد تأیید شما: {code}',
         'sms.timeout' => 5,
         'sms.connect_timeout' => 2,
     ]);
 });
 
-it('sends otp from the dedicated line through the console simple api', function () {
+it('sends otp through the smart sms api and logs success', function () {
     Http::fake([
-        'console.melipayamak.com/api/send/simple/*' => Http::response([
-            'recId' => 987654321,
-            'status' => 'ارسال موفق',
+        'rest.payamak-panel.com/api/SmartSMS/Send' => Http::response([
+            'Value' => '987654321',
+            'RetStatus' => 1,
+            'StrRetStatus' => 'Ok',
         ]),
     ]);
 
@@ -40,10 +44,28 @@ it('sends otp from the dedicated line through the console simple api', function 
         ->send_status->toBe(SmsSendStatus::Sent)
         ->and($log->content)->toBe('کد تأیید شما: 123456');
 
-    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://console.melipayamak.com/api/send/simple/test-api-key'
-        && $request['from'] === '2134856'
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://rest.payamak-panel.com/api/SmartSMS/Send'
+        && $request['username'] === 'panel-user'
+        && $request['password'] === 'panel-api-key'
+        && $request['from'] === '50001234'
+        && $request['fromSupportOne'] === '50005678'
+        && $request['fromSupportTwo'] === ''
         && $request['to'] === '09121234567'
         && $request['text'] === 'کد تأیید شما: 123456');
+});
+
+it('does not send when the username is empty', function () {
+    config(['sms.username' => null]);
+
+    Http::fake();
+
+    $log = app(MelipayamakService::class)->sendOtp('09121234567', '654321');
+
+    expect($log)
+        ->send_status->toBe(SmsSendStatus::Failed)
+        ->service_response->toBe('نام کاربری ملی پیامک تنظیم نشده است.');
+
+    Http::assertNothingSent();
 });
 
 it('does not send when the sender line is empty', function () {
@@ -62,9 +84,10 @@ it('does not send when the sender line is empty', function () {
 
 it('logs a failed sms when the provider returns an error', function () {
     Http::fake([
-        'console.melipayamak.com/api/send/simple/*' => Http::response([
-            'recId' => 0,
-            'status' => 'اعتبار کافی نیست',
+        'rest.payamak-panel.com/api/SmartSMS/Send' => Http::response([
+            'Value' => '0',
+            'RetStatus' => 2,
+            'StrRetStatus' => 'اعتبار کافی نیست',
         ], 200),
     ]);
 

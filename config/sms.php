@@ -16,17 +16,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Melipayamak console credentials
+    | Melipayamak Smart credentials
     |--------------------------------------------------------------------------
     |
-    | Uses https://console.melipayamak.com with an API key. Messages are sent
-    | from the dedicated service line (ارسال ساده), not shared patterns.
+    | Uses the Smart SMS REST API:
+    | POST https://rest.payamak-panel.com/api/SmartSMS/Send
+    |
+    | password may be the panel password or the panel APIKey (not the
+    | console.melipayamak.com token). fromSupport lines are optional backups.
     |
     */
 
-    'api_key' => env('MELIPAYAMAK_API_KEY'),
+    'username' => env('MELIPAYAMAK_USERNAME'),
+
+    'password' => env('MELIPAYAMAK_PASSWORD'),
 
     'from' => env('MELIPAYAMAK_FROM'),
+
+    'from_support_one' => env('MELIPAYAMAK_FROM_SUPPORT_ONE'),
+
+    'from_support_two' => env('MELIPAYAMAK_FROM_SUPPORT_TWO'),
 
     'timeout' => (int) env('MELIPAYAMAK_TIMEOUT', 10),
 
@@ -52,8 +61,8 @@ return [
     | Message templates
     |--------------------------------------------------------------------------
     |
-    | Sent as the SMS body from the dedicated line. Placeholders like {name}
-    | are replaced before calling the console simple-send API.
+    | Sent as the SMS body. Placeholders like {name} are replaced before
+    | calling SendSmartSMS.
     |
     */
 

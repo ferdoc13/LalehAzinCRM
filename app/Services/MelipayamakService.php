@@ -32,8 +32,12 @@ class MelipayamakService
             return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'ارسال پیامک غیرفعال است.');
         }
 
-        if (blank(config('sms.api_key'))) {
-            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'کلید API ملی پیامک تنظیم نشده است.');
+        if (blank(config('sms.username'))) {
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'نام کاربری ملی پیامک تنظیم نشده است.');
+        }
+
+        if (blank(config('sms.password'))) {
+            return $this->record($phone, $text, $eventType, SmsSendStatus::Failed, 'رمز عبور یا APIKey ملی پیامک تنظیم نشده است.');
         }
 
         if (blank(config('sms.from'))) {
@@ -45,7 +49,7 @@ class MelipayamakService
         }
 
         try {
-            $response = $this->postSimple($phone, $text);
+            $response = $this->postSmart($phone, $text);
         } catch (Throwable $exception) {
             return $this->recordFailedRequest($phone, $text, $eventType, $exception);
         }
@@ -70,14 +74,18 @@ class MelipayamakService
         return (bool) config('sms.enabled');
     }
 
-    private function postSimple(string $phone, string $text): Response
+    private function postSmart(string $phone, string $text): Response
     {
         return $this->http()
-            ->asJson()
-            ->post('https://console.melipayamak.com/api/send/simple/'.config('sms.api_key'), [
-                'from' => (string) config('sms.from'),
+            ->asForm()
+            ->post('https://rest.payamak-panel.com/api/SmartSMS/Send', [
+                'username' => (string) config('sms.username'),
+                'password' => (string) config('sms.password'),
                 'to' => $this->normalizePhone($phone),
                 'text' => $text,
+                'from' => (string) config('sms.from'),
+                'fromSupportOne' => (string) config('sms.from_support_one', ''),
+                'fromSupportTwo' => (string) config('sms.from_support_two', ''),
             ]);
     }
 
@@ -115,12 +123,22 @@ class MelipayamakService
     private function responseSucceeded(mixed $payload): bool
     {
         if (! is_array($payload)) {
+            return is_numeric($payload) && (int) $payload > 0;
+        }
+
+        $retStatus = $payload['RetStatus'] ?? $payload['retStatus'] ?? null;
+
+        if ($retStatus !== null && (int) $retStatus !== 1) {
             return false;
         }
 
-        $recId = $payload['recId'] ?? $payload['RecId'] ?? null;
+        $value = $payload['Value'] ?? $payload['value'] ?? $payload['recId'] ?? $payload['RecId'] ?? null;
 
-        return is_numeric($recId) && (int) $recId > 0;
+        if (is_string($value) && str_contains($value, ' - ')) {
+            return false;
+        }
+
+        return is_numeric($value) && (int) $value > 0;
     }
 
     private function record(
