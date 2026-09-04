@@ -35,9 +35,9 @@
     }"
     class="w-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:border-white/10 dark:bg-gray-900 dark:ring-white/10"
 >
-    <div class="flex items-start gap-3">
-        <div class="fi-color fi-color-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-white/5">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="fi-color fi-color-primary size-5 text-[rgb(var(--primary-600))] dark:text-[rgb(var(--primary-400))]">
+    <div class="flex items-start gap-2.5">
+        <div class="fi-color fi-color-primary flex size-8 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-white/5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="fi-color fi-color-primary size-4 text-[rgb(var(--primary-600))] dark:text-[rgb(var(--primary-400))]">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
             </svg>
         </div>
@@ -59,14 +59,14 @@
         class="fi-color fi-color-primary mt-4 flex items-center justify-between gap-3 rounded-lg px-4 py-3 ring-1 ring-inset ring-[color:var(--color-200)] bg-[color:var(--color-50)] dark:ring-[color:var(--color-800)] dark:bg-[color:var(--color-950)]/30"
     >
         <div class="flex items-center gap-2 text-sm font-medium text-[rgb(var(--primary-700))] dark:text-[rgb(var(--primary-300))]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3.5 shrink-0">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
             <span>زمان باقی‌مانده</span>
         </div>
 
         <span
-            class="font-mono text-2xl font-bold tabular-nums tracking-wider text-[rgb(var(--primary-700))] dark:text-[rgb(var(--primary-300))]"
+            class="font-mono text-lg font-bold tabular-nums tracking-wider text-[rgb(var(--primary-700))] dark:text-[rgb(var(--primary-300))]"
             dir="ltr"
             x-text="display"
         >2:00</span>

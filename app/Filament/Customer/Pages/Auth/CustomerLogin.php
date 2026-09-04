@@ -20,7 +20,6 @@ use Filament\Schemas\Components\Html;
 use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
@@ -196,6 +195,13 @@ class CustomerLogin extends SimplePage
             ->length(OtpService::CODE_LENGTH)
             ->required()
             ->autofocus()
+            ->extraAttributes([
+                'class' => 'customer-otp-input',
+                'dir' => 'ltr',
+            ])
+            ->extraFieldWrapperAttributes([
+                'class' => 'customer-otp-field',
+            ])
             ->visible(fn (): bool => $this->step === 'code');
     }
 
@@ -251,7 +257,6 @@ class CustomerLogin extends SimplePage
     {
         return Action::make('authenticate')
             ->label('ورود به پنل')
-            ->icon(Heroicon::OutlinedArrowLeftEndOnRectangle)
             ->submit('authenticate');
     }
 
@@ -299,8 +304,6 @@ class CustomerLogin extends SimplePage
                 ->label('شماره را اشتباه زدید؟ تغییر شماره')
                 ->link()
                 ->color('primary')
-                ->icon(Heroicon::OutlinedPencilSquare)
-                ->iconPosition(IconPosition::Before)
                 ->action('resetToMobileStep'),
         ])
             ->alignment(Alignment::Center)
