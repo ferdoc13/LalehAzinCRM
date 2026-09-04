@@ -120,3 +120,33 @@ it('rate limits otp verification after five failed attempts in fifteen minutes',
 
     expect(auth('customer')->check())->toBeFalse();
 });
+
+it('shows a two minute countdown and a change-number link after sending the otp', function () {
+    $customer = Customer::factory()->create(['mobile' => '09124445566']);
+
+    $component = Livewire::test(CustomerLogin::class)
+        ->fillForm(['mobile' => $customer->mobile])
+        ->call('requestCode')
+        ->assertSet('step', 'code')
+        ->assertSee('زمان باقی‌مانده پیامک')
+        ->assertSee('2:00')
+        ->assertSee('شماره را اشتباه زدید؟ تغییر شماره')
+        ->assertSee($customer->mobile);
+
+    expect($component->get('otpExpiresAt'))
+        ->toBeGreaterThan(now()->addMinute()->getTimestamp())
+        ->toBeLessThanOrEqual(now()->addMinutes(2)->getTimestamp());
+});
+
+it('lets the customer go back and edit the mobile number', function () {
+    $customer = Customer::factory()->create(['mobile' => '09127778899']);
+
+    Livewire::test(CustomerLogin::class)
+        ->fillForm(['mobile' => $customer->mobile])
+        ->call('requestCode')
+        ->assertSet('step', 'code')
+        ->call('resetToMobileStep')
+        ->assertSet('step', 'mobile')
+        ->assertSet('otpExpiresAt', null)
+        ->assertFormSet(['mobile' => $customer->mobile]);
+});

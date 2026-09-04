@@ -15,12 +15,14 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 
@@ -42,6 +44,9 @@ class CustomerLogin extends SimplePage
     #[Locked]
     public ?string $mobile = null;
 
+    #[Locked]
+    public ?int $otpExpiresAt = null;
+
     public function mount(): void
     {
         if (Filament::auth()->check()) {
@@ -57,20 +62,18 @@ class CustomerLogin extends SimplePage
         $mobile = $data['mobile'];
 
         try {
-            app(OtpService::class)->send($mobile);
+            $otp = app(OtpService::class)->send($mobile);
         } catch (OtpRateLimitedException $exception) {
             $this->notifyRateLimited($exception);
 
             return;
         }
 
-        $this->mobile = $mobile;
-        $this->step = 'code';
-        $this->form->fill(['code' => null]);
+        $this->startCodeStep($mobile, $otp->expires_at?->getTimestamp());
 
         Notification::make()
             ->title('کد تأیید ارسال شد')
-            ->body('کد ۶ رقمی تا ۲ دقیقه معتبر است. در این مرحله کد در لاگ سیستم ثبت می‌شود.')
+            ->body('کد ۶ رقمی تا ۲ دقیقه معتبر است.')
             ->success()
             ->send();
     }
@@ -121,24 +124,33 @@ class CustomerLogin extends SimplePage
         }
 
         try {
-            app(OtpService::class)->send($this->mobile);
+            $otp = app(OtpService::class)->send($this->mobile);
         } catch (OtpRateLimitedException $exception) {
             $this->notifyRateLimited($exception);
 
             return;
         }
 
+        $this->otpExpiresAt = $otp->expires_at?->getTimestamp();
+        $this->form->fill(['code' => null]);
+
         Notification::make()
             ->title('کد جدید ارسال شد')
+            ->body('کد ۶ رقمی تا ۲ دقیقه معتبر است.')
             ->success()
             ->send();
     }
 
     public function resetToMobileStep(): void
     {
+        $previousMobile = $this->mobile;
+
         $this->step = 'mobile';
         $this->mobile = null;
-        $this->form->fill();
+        $this->otpExpiresAt = null;
+        $this->form->fill([
+            'mobile' => $previousMobile,
+        ]);
     }
 
     public function defaultForm(Schema $schema): Schema
@@ -198,8 +210,8 @@ class CustomerLogin extends SimplePage
 
     public function getSubheading(): string|Htmlable|null
     {
-        if ($this->step === 'code' && filled($this->mobile)) {
-            return "کد ارسال‌شده به {$this->mobile} را وارد کنید.";
+        if ($this->step === 'code') {
+            return null;
         }
 
         return 'برای ورود، شماره موبایل ثبت‌شده در سیستم را وارد کنید.';
@@ -213,8 +225,6 @@ class CustomerLogin extends SimplePage
         if ($this->step === 'code') {
             return [
                 $this->getAuthenticateFormAction(),
-                $this->getResendCodeAction(),
-                $this->getChangeMobileAction(),
             ];
         }
 
@@ -237,23 +247,6 @@ class CustomerLogin extends SimplePage
             ->submit('authenticate');
     }
 
-    protected function getResendCodeAction(): Action
-    {
-        return Action::make('resendCode')
-            ->label('ارسال دوباره کد')
-            ->color('gray')
-            ->action('resendCode');
-    }
-
-    protected function getChangeMobileAction(): Action
-    {
-        return Action::make('changeMobile')
-            ->label('تغییر شماره موبایل')
-            ->color('gray')
-            ->link()
-            ->action('resetToMobileStep');
-    }
-
     protected function hasFullWidthFormActions(): bool
     {
         return true;
@@ -264,9 +257,19 @@ class CustomerLogin extends SimplePage
         return $schema
             ->components([
                 RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE),
+                $this->getOtpHintComponent(),
                 $this->getFormContentComponent(),
                 RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER),
             ]);
+    }
+
+    protected function getOtpHintComponent(): Component
+    {
+        return Html::make(fn (): HtmlString => new HtmlString(view('filament.customer.auth.otp-hint', [
+            'mobile' => $this->mobile,
+            'expiresAt' => $this->otpExpiresAt,
+        ])->render()))
+            ->visible(fn (): bool => $this->step === 'code' && filled($this->mobile));
     }
 
     public function getFormContentComponent(): Component
@@ -280,6 +283,14 @@ class CustomerLogin extends SimplePage
                     ->fullWidth($this->hasFullWidthFormActions())
                     ->key('form-actions'),
             ]);
+    }
+
+    private function startCodeStep(string $mobile, ?int $expiresAt): void
+    {
+        $this->mobile = $mobile;
+        $this->step = 'code';
+        $this->otpExpiresAt = $expiresAt ?? now()->addMinutes(OtpService::TTL_MINUTES)->getTimestamp();
+        $this->form->fill(['code' => null]);
     }
 
     private function customerGuard(): CustomerGuard
