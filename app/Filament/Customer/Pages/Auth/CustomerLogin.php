@@ -8,6 +8,7 @@ use App\Services\OtpService;
 use Filament\Actions\Action;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\SimplePage;
@@ -16,11 +17,12 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Html;
-use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Concerns\RestrictsFileUploadsToSchemaComponents;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
-use Filament\View\PanelsRenderHook;
+use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
@@ -174,6 +176,8 @@ class CustomerLogin extends SimplePage
             ->label('شماره موبایل')
             ->placeholder('09121234567')
             ->tel()
+            ->prefixIcon(Heroicon::OutlinedPhone)
+            ->helperText('شماره‌ای که هنگام ثبت‌نام در سیستم وارد شده است.')
             ->required()
             ->autocomplete('tel')
             ->autofocus()
@@ -187,15 +191,17 @@ class CustomerLogin extends SimplePage
 
     protected function getCodeFormComponent(): Component
     {
-        return TextInput::make('code')
+        return OneTimeCodeInput::make('code')
             ->label('کد تأیید')
-            ->placeholder('کد ۶ رقمی')
-            ->numeric()
+            ->length(OtpService::CODE_LENGTH)
             ->required()
-            ->autocomplete('one-time-code')
             ->autofocus()
-            ->length(6)
             ->visible(fn (): bool => $this->step === 'code');
+    }
+
+    public function getMaxWidth(): Width|string|null
+    {
+        return Width::Large;
     }
 
     public function getTitle(): string|Htmlable
@@ -211,7 +217,7 @@ class CustomerLogin extends SimplePage
     public function getSubheading(): string|Htmlable|null
     {
         if ($this->step === 'code') {
-            return null;
+            return 'کد ۶ رقمی پیامک‌شده را وارد کنید.';
         }
 
         return 'برای ورود، شماره موبایل ثبت‌شده در سیستم را وارد کنید.';
@@ -236,14 +242,16 @@ class CustomerLogin extends SimplePage
     protected function getRequestCodeAction(): Action
     {
         return Action::make('requestCode')
-            ->label('دریافت کد')
+            ->label('دریافت کد تأیید')
+            ->icon(Heroicon::OutlinedPaperAirplane)
             ->submit('requestCode');
     }
 
     protected function getAuthenticateFormAction(): Action
     {
         return Action::make('authenticate')
-            ->label('ورود')
+            ->label('ورود به پنل')
+            ->icon(Heroicon::OutlinedArrowLeftEndOnRectangle)
             ->submit('authenticate');
     }
 
@@ -256,10 +264,7 @@ class CustomerLogin extends SimplePage
     {
         return $schema
             ->components([
-                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE),
-                $this->getOtpHintComponent(),
                 $this->getFormContentComponent(),
-                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER),
             ]);
     }
 
@@ -278,11 +283,28 @@ class CustomerLogin extends SimplePage
             ->id('form')
             ->livewireSubmitHandler($this->step === 'code' ? 'authenticate' : 'requestCode')
             ->footer([
+                $this->getOtpHintComponent(),
                 Actions::make($this->getFormActions())
-                    ->alignment(Alignment::Start)
+                    ->alignment(Alignment::Center)
                     ->fullWidth($this->hasFullWidthFormActions())
                     ->key('form-actions'),
+                $this->getSecondaryActionsComponent(),
             ]);
+    }
+
+    protected function getSecondaryActionsComponent(): Component
+    {
+        return Actions::make([
+            Action::make('changeMobile')
+                ->label('شماره را اشتباه زدید؟ تغییر شماره')
+                ->link()
+                ->color('primary')
+                ->icon(Heroicon::OutlinedPencilSquare)
+                ->iconPosition(IconPosition::Before)
+                ->action('resetToMobileStep'),
+        ])
+            ->alignment(Alignment::Center)
+            ->visible(fn (): bool => $this->step === 'code');
     }
 
     private function startCodeStep(string $mobile, ?int $expiresAt): void
