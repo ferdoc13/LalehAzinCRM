@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\InvoicePaymentStatus;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,6 +25,25 @@ class InvoiceFactory extends Factory
             'invoice_date' => fake()->dateTimeBetween('-6 months', 'now'),
             'payment_status' => fake()->randomElement(InvoicePaymentStatus::cases()),
         ];
+    }
+
+    public function priced(float $amount): static
+    {
+        return $this->state([
+            'total_amount' => $amount,
+            'discount_amount' => 0,
+        ])->afterCreating(function (Invoice $invoice) use ($amount): void {
+            InvoiceItem::factory()->create([
+                'invoice_id' => $invoice->id,
+                'quantity' => 1,
+                'unit_price' => $amount,
+                'total_amount' => $amount,
+            ]);
+
+            $invoice->update([
+                'total_amount' => $amount,
+            ]);
+        });
     }
 
     public function withItems(int $count = 3): static

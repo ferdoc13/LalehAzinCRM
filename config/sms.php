@@ -74,7 +74,7 @@ return [
 
         'invoice_created' => '{name} عزیز، فاکتور {invoice_number} به مبلغ {total_amount} ریال صادر شد.',
 
-        'discount_request_created' => 'درخواست تخفیف جدید برای {customer_name} به مبلغ {proposed_amount} ریال ثبت شد.',
+        'discount_request_created' => 'درخواست تخفیف جدید برای {customer_name} روی فاکتور {invoice_number} به مبلغ {proposed_amount} ریال ثبت شد.',
 
         'discount_reviewed' => '{name} عزیز، درخواست تخفیف شما «{status}» شد. مبلغ نهایی: {amount} ریال.',
 

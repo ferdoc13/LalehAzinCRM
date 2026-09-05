@@ -2,27 +2,33 @@
 
 namespace App\Filament\Resources\DiscountRequests\Pages;
 
-use App\Enums\DiscountRequestStatus;
+use App\Actions\CreateDiscountRequest as CreateDiscountRequestAction;
 use App\Filament\Resources\DiscountRequests\DiscountRequestResource;
-use App\Models\Customer;
+use App\Models\DiscountRequest;
+use App\Models\Invoice;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 
 class CreateDiscountRequest extends CreateRecord
 {
     protected static string $resource = DiscountRequestResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordCreation(array $data): Model
     {
-        $customer = Customer::query()->findOrFail($data['customer_id']);
-        Gate::authorize('view', $customer);
+        $invoice = Invoice::query()->findOrFail($data['invoice_id']);
+        Gate::authorize('view', $invoice);
 
-        $data['requested_by'] = auth()->id();
-        $data['status'] = DiscountRequestStatus::Pending;
-        $data['final_amount'] = null;
-        $data['reviewed_by'] = null;
-        $data['reviewed_at'] = null;
+        /** @var DiscountRequest $request */
+        $request = app(CreateDiscountRequestAction::class)->handle(
+            invoice: $invoice,
+            requester: auth()->user(),
+            proposedAmount: (float) $data['proposed_amount'],
+        );
 
-        return $data;
+        return $request;
     }
 }

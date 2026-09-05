@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DiscountRequests\Schemas;
 
+use App\Filament\Resources\Invoices\InvoiceResource;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -11,6 +12,9 @@ class DiscountRequestInfolist
     {
         return $schema
             ->components([
+                TextEntry::make('invoice.invoice_number')
+                    ->label('شماره فاکتور')
+                    ->url(fn ($record): string => InvoiceResource::getUrl('view', ['record' => $record->invoice_id])),
                 TextEntry::make('customer.full_name')
                     ->label('نام مشتری'),
                 TextEntry::make('requester.name')

@@ -33,11 +33,13 @@ class PendingDiscountRequestsWidget extends TableWidget
             ->description('دسترسی سریع برای بررسی درخواست‌های pending')
             ->query(
                 fn (): Builder => DiscountRequest::query()
-                    ->with(['customer', 'requester'])
+                    ->with(['customer', 'requester', 'invoice'])
                     ->where('status', DiscountRequestStatus::Pending)
                     ->latest(),
             )
             ->columns([
+                TextColumn::make('invoice.invoice_number')
+                    ->label('شماره فاکتور'),
                 TextColumn::make('customer.full_name')
                     ->label('نام مشتری'),
                 TextColumn::make('requester.name')

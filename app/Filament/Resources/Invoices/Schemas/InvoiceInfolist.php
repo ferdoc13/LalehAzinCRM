@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Invoices\Schemas;
 
+use App\Models\Invoice;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
@@ -31,6 +32,25 @@ class InvoiceInfolist
                     ->label('تخفیف از اعتبار')
                     ->numeric(decimalPlaces: 0)
                     ->visible(fn ($record): bool => (float) ($record?->discount_amount ?? 0) > 0),
+                RepeatableEntry::make('discountRequests')
+                    ->label('درخواست‌های تخفیف')
+                    ->schema([
+                        TextEntry::make('proposed_amount')
+                            ->label('مبلغ پیشنهادی')
+                            ->numeric(decimalPlaces: 0),
+                        TextEntry::make('final_amount')
+                            ->label('مبلغ نهایی')
+                            ->numeric(decimalPlaces: 0)
+                            ->placeholder('-'),
+                        TextEntry::make('status')
+                            ->label('وضعیت')
+                            ->badge(),
+                        TextEntry::make('requester.name')
+                            ->label('ثبت‌کننده'),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull()
+                    ->visible(fn (?Invoice $record): bool => (bool) $record?->discountRequests?->isNotEmpty()),
                 RepeatableEntry::make('items')
                     ->label('اقلام فاکتور')
                     ->schema([

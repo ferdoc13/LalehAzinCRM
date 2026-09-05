@@ -1,10 +1,12 @@
 <?php
 
 use App\Enums\DiscountRequestStatus;
+use App\Filament\Resources\DiscountRequests\Pages\CreateDiscountRequest;
 use App\Filament\Resources\DiscountRequests\Pages\ListDiscountRequests;
 use App\Models\Customer;
 use App\Models\CustomerCreditLedger;
 use App\Models\DiscountRequest;
+use App\Models\Invoice;
 use App\Services\CustomerCreditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -128,4 +130,47 @@ it('lets a manager reject a pending discount request', function () {
         ->reviewed_by->toBe($manager->id);
 
     expect(CustomerCreditLedger::query()->where('customer_id', $customer->id)->exists())->toBeFalse();
+});
+
+it('requires an invoice when creating a discount request', function () {
+    $employee = staffUser();
+
+    $this->actingAs($employee);
+
+    Livewire::test(CreateDiscountRequest::class)
+        ->fillForm([
+            'proposed_amount' => 100_000,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['invoice_id']);
+});
+
+it('lets an employee request a discount on a selected invoice', function () {
+    $employee = staffUser();
+    $customer = Customer::factory()->create(['employee_id' => $employee->id]);
+    $invoice = Invoice::factory()->priced(500_000)->create([
+        'customer_id' => $customer->id,
+        'employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee);
+
+    Livewire::test(CreateDiscountRequest::class)
+        ->fillForm([
+            'invoice_id' => $invoice->id,
+            'proposed_amount' => 100_000,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $request = DiscountRequest::query()->first();
+
+    expect($request)
+        ->not->toBeNull()
+        ->invoice_id->toBe($invoice->id)
+        ->customer_id->toBe($customer->id)
+        ->requested_by->toBe($employee->id)
+        ->status->toBe(DiscountRequestStatus::Pending)
+        ->and((float) $invoice->fresh()->total_amount)->toBe(500_000.0)
+        ->and((float) $invoice->fresh()->discount_amount)->toBe(0.0);
 });

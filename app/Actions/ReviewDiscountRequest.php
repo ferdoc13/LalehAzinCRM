@@ -8,6 +8,8 @@ use App\Models\DiscountRequest;
 use App\Models\User;
 use App\Services\CustomerCreditService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Number;
+use Illuminate\Validation\ValidationException;
 
 class ReviewDiscountRequest
 {
@@ -57,6 +59,9 @@ class ReviewDiscountRequest
     ): DiscountRequest {
         return DB::transaction(function () use ($discountRequest, $reviewer, $status, $finalAmount): DiscountRequest {
             $discountRequest = $this->lockPending($discountRequest);
+            $discountRequest->loadMissing(['customer', 'invoice.items']);
+
+            $this->assertAmountWithinInvoice($discountRequest, $finalAmount);
 
             $discountRequest->update([
                 'status' => $status,
@@ -71,6 +76,7 @@ class ReviewDiscountRequest
                     amount: $finalAmount,
                     description: 'اعتبار ناشی از تأیید درخواست تخفیف',
                     discountRequest: $discountRequest,
+                    invoice: $discountRequest->invoice,
                 );
             }
 
@@ -90,5 +96,24 @@ class ReviewDiscountRequest
         }
 
         return $discountRequest;
+    }
+
+    private function assertAmountWithinInvoice(DiscountRequest $discountRequest, float $finalAmount): void
+    {
+        $invoice = $discountRequest->invoice;
+
+        if ($invoice && $discountRequest->customer_id !== $invoice->customer_id) {
+            throw ValidationException::withMessages([
+                'customer_id' => 'مشتری درخواست تخفیف با مشتری فاکتور یکسان نیست.',
+            ]);
+        }
+
+        $maxAmount = $invoice?->itemsTotal() ?? 0;
+
+        if ($finalAmount <= 0 || $finalAmount > $maxAmount) {
+            throw ValidationException::withMessages([
+                'final_amount' => 'مبلغ تخفیف باید بزرگ‌تر از صفر و حداکثر '.Number::format($maxAmount, precision: 0).' ریال باشد.',
+            ]);
+        }
     }
 }

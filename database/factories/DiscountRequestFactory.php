@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\DiscountRequestStatus;
 use App\Models\Customer;
 use App\Models\DiscountRequest;
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,6 +17,7 @@ class DiscountRequestFactory extends Factory
     public function definition(): array
     {
         return [
+            'invoice_id' => null,
             'customer_id' => Customer::factory(),
             'requested_by' => User::factory(),
             'proposed_amount' => fake()->randomFloat(2, 500_000, 10_000_000),
@@ -24,6 +26,34 @@ class DiscountRequestFactory extends Factory
             'reviewed_by' => null,
             'reviewed_at' => null,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterMaking(function (DiscountRequest $discountRequest): void {
+            if ($discountRequest->invoice_id) {
+                $invoice = Invoice::query()->find($discountRequest->invoice_id);
+
+                if ($invoice) {
+                    $discountRequest->customer_id = $invoice->customer_id;
+                }
+
+                return;
+            }
+
+            $customerId = $discountRequest->customer_id ?? Customer::factory()->create()->id;
+            $employeeId = $discountRequest->requested_by
+                ?? Customer::query()->find($customerId)?->employee_id
+                ?? User::factory()->create()->id;
+
+            $invoice = Invoice::withoutEvents(fn (): Invoice => Invoice::factory()->priced(10_000_000)->create([
+                'customer_id' => $customerId,
+                'employee_id' => $employeeId,
+            ]));
+
+            $discountRequest->invoice_id = $invoice->id;
+            $discountRequest->customer_id = $customerId;
+        });
     }
 
     public function approved(User $reviewer): static

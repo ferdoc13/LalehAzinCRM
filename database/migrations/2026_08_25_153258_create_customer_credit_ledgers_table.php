@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->index()->constrained();
             $table->foreignId('discount_request_id')->nullable()->index()->constrained();
+            $table->foreignId('invoice_id')->nullable()->index()->constrained();
             $table->decimal('amount', 15, 2);
             $table->string('transaction_type')->index();
             $table->text('description')->nullable();

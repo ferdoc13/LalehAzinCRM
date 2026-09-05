@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('mobile', 11)->unique();
             $table->text('address')->nullable();
             $table->foreignId('employee_id')->index()->constrained('users');
+            $table->boolean('apply_credit_to_next_invoice')->default(false)->index();
             $table->timestamps();
         });
     }

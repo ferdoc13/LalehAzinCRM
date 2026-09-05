@@ -13,7 +13,7 @@ class DiscountRequestCreatedNotification extends MelipayamakNotification
     public function toMelipayamak(object $notifiable): MelipayamakMessage
     {
         $request = $this->discountRequest->fresh() ?? $this->discountRequest;
-        $request->loadMissing('customer');
+        $request->loadMissing(['customer', 'invoice']);
         $customerName = $request->customer?->full_name ?? '';
         $amount = $this->formatAmount($request->proposed_amount);
 
@@ -21,6 +21,7 @@ class DiscountRequestCreatedNotification extends MelipayamakNotification
             eventType: SmsEventType::Discount,
             text: $this->messageText('discount_request_created', [
                 'customer_name' => $customerName,
+                'invoice_number' => $request->invoice?->invoice_number ?? '',
                 'proposed_amount' => $amount,
             ]),
         );

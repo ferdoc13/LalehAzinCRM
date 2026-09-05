@@ -4,6 +4,8 @@ namespace App\Filament\Resources\DiscountRequests\Tables;
 
 use App\Enums\DiscountRequestStatus;
 use App\Filament\Resources\DiscountRequests\Actions\ReviewDiscountRequestActions;
+use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Models\DiscountRequest;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -15,6 +17,10 @@ class DiscountRequestsTable
     {
         return $table
             ->columns([
+                TextColumn::make('invoice.invoice_number')
+                    ->label('شماره فاکتور')
+                    ->searchable()
+                    ->url(fn (DiscountRequest $record): string => InvoiceResource::getUrl('view', ['record' => $record->invoice_id])),
                 TextColumn::make('customer.full_name')
                     ->label('نام مشتری')
                     ->searchable(query: function ($query, string $search) {

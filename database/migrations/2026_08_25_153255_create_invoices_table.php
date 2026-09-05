@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('employee_id')->index()->constrained('users');
             $table->string('invoice_number')->unique();
             $table->decimal('total_amount', 15, 2);
+            $table->decimal('discount_amount', 15, 2)->default(0);
             $table->date('invoice_date')->index();
             $table->string('payment_status')->default('pending')->index();
             $table->timestamps();

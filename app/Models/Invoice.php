@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DiscountRequestStatus;
 use App\Enums\InvoicePaymentStatus;
 use App\Observers\InvoiceObserver;
 use Database\Factories\InvoiceFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'customer_id',
@@ -59,14 +61,34 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class);
     }
 
+    public function discountRequests(): HasMany
+    {
+        return $this->hasMany(DiscountRequest::class);
+    }
+
+    public function pendingDiscountRequest(): HasOne
+    {
+        return $this->hasOne(DiscountRequest::class)
+            ->where('status', DiscountRequestStatus::Pending);
+    }
+
     public function creditLedgers(): HasMany
     {
         return $this->hasMany(CustomerCreditLedger::class);
     }
 
+    public function itemsTotal(): float
+    {
+        if ($this->relationLoaded('items')) {
+            return round((float) $this->items->sum('total_amount'), 2);
+        }
+
+        return round((float) $this->items()->sum('total_amount'), 2);
+    }
+
     public function syncTotalFromItems(): void
     {
-        $itemsTotal = round((float) $this->items()->sum('total_amount'), 2);
+        $itemsTotal = $this->itemsTotal();
         $discount = min((float) $this->discount_amount, $itemsTotal);
 
         $this->update([

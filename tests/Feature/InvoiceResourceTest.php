@@ -1,11 +1,14 @@
 <?php
 
 use App\Enums\CreditTransactionType;
+use App\Enums\DiscountRequestStatus;
 use App\Enums\InvoicePaymentStatus;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Resources\Invoices\Pages\ListInvoices;
+use App\Filament\Resources\Invoices\Pages\ViewInvoice;
 use App\Models\Customer;
+use App\Models\DiscountRequest;
 use App\Models\Invoice;
 use App\Services\CustomerCreditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -135,4 +138,63 @@ it('applies customer credit to a new invoice when requested', function () {
         ->and(app(CustomerCreditService::class)->getBalance($customer))->toBe(0.0)
         ->and($invoice->creditLedgers)->toHaveCount(1)
         ->and($invoice->creditLedgers->first()->transaction_type)->toBe(CreditTransactionType::Debit);
+});
+
+it('lets an employee request a discount from the invoice page', function () {
+    $employee = staffUser();
+    $customer = Customer::factory()->create(['employee_id' => $employee->id]);
+    $invoice = Invoice::factory()->priced(400_000)->create([
+        'customer_id' => $customer->id,
+        'employee_id' => $employee->id,
+    ]);
+
+    $this->actingAs($employee);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getRouteKey()])
+        ->assertOk()
+        ->assertActionVisible('requestDiscount')
+        ->callAction('requestDiscount', data: [
+            'proposed_amount' => 150_000,
+        ])
+        ->assertHasNoActionErrors();
+
+    $request = DiscountRequest::query()->first();
+
+    expect($request)
+        ->not->toBeNull()
+        ->invoice_id->toBe($invoice->id)
+        ->customer_id->toBe($customer->id)
+        ->status->toBe(DiscountRequestStatus::Pending)
+        ->and((float) $request->proposed_amount)->toBe(150_000.0)
+        ->and((float) $invoice->fresh()->total_amount)->toBe(400_000.0)
+        ->and((float) $invoice->fresh()->discount_amount)->toBe(0.0);
+});
+
+it('lets a manager review a pending discount request from the invoice page', function () {
+    $manager = staffUser('manager');
+    $employee = staffUser();
+    $customer = Customer::factory()->create(['employee_id' => $employee->id]);
+    $invoice = Invoice::factory()->priced(400_000)->create([
+        'customer_id' => $customer->id,
+        'employee_id' => $employee->id,
+    ]);
+    DiscountRequest::factory()->create([
+        'invoice_id' => $invoice->id,
+        'requested_by' => $employee->id,
+        'proposed_amount' => 80_000,
+        'status' => DiscountRequestStatus::Pending,
+    ]);
+
+    $this->actingAs($manager);
+
+    Livewire::test(ViewInvoice::class, ['record' => $invoice->getRouteKey()])
+        ->assertOk()
+        ->assertActionHidden('requestDiscount')
+        ->callAction('approve')
+        ->assertHasNoActionErrors();
+
+    expect($invoice->fresh()->pendingDiscountRequest)->toBeNull()
+        ->and(app(CustomerCreditService::class)->getBalance($customer))->toBe(80_000.0)
+        ->and((float) $invoice->fresh()->total_amount)->toBe(400_000.0)
+        ->and((float) $invoice->fresh()->discount_amount)->toBe(0.0);
 });

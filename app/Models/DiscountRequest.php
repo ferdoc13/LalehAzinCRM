@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
+    'invoice_id',
     'customer_id',
     'requested_by',
     'proposed_amount',
@@ -42,6 +43,11 @@ class DiscountRequest extends Model
             'status' => DiscountRequestStatus::class,
             'reviewed_at' => 'datetime',
         ];
+    }
+
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
     }
 
     public function customer(): BelongsTo

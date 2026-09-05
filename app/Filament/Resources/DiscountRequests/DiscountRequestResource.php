@@ -68,7 +68,7 @@ class DiscountRequestResource extends Resource
         $user = auth()->user();
 
         return parent::getEloquentQuery()
-            ->with(['customer', 'requester', 'reviewer'])
+            ->with(['customer', 'requester', 'reviewer', 'invoice.items'])
             ->visibleTo($user);
     }
 }

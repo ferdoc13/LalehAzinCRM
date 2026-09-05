@@ -50,16 +50,21 @@ class ReviewDiscountRequestActions
             ->icon(Heroicon::PencilSquare)
             ->color('info')
             ->authorize('review')
-            ->fillForm(fn (DiscountRequest $record): array => [
-                'final_amount' => $record->proposed_amount,
-            ])
+            ->fillForm(function (DiscountRequest $record): array {
+                $record->loadMissing('invoice.items');
+
+                return [
+                    'final_amount' => $record->proposed_amount,
+                ];
+            })
             ->schema([
                 TextInput::make('final_amount')
                     ->label('مبلغ نهایی')
                     ->numeric()
-                    ->minValue(0)
+                    ->minValue(1)
+                    ->maxValue(fn (DiscountRequest $record): float => $record->invoice?->itemsTotal() ?? 0)
                     ->required()
-                    ->helperText('این مبلغ به موجودی اعتبار مشتری اضافه می‌شود.'),
+                    ->helperText('این مبلغ به موجودی اعتبار مشتری اضافه می‌شود و از مبلغ فاکتور مبدأ کم نمی‌شود.'),
             ])
             ->action(function (DiscountRequest $record, array $data, ReviewDiscountRequest $review): void {
                 $review->editAndApprove($record, auth()->user(), (float) $data['final_amount']);

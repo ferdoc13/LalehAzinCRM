@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('discount_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('invoice_id')->index()->constrained();
             $table->foreignId('customer_id')->index()->constrained();
             $table->foreignId('requested_by')->index()->constrained('users');
             $table->decimal('proposed_amount', 15, 2);
@@ -18,6 +19,7 @@ return new class extends Migration
             $table->foreignId('reviewed_by')->nullable()->index()->constrained('users');
             $table->timestamp('reviewed_at')->nullable()->index();
             $table->timestamps();
+            $table->index(['invoice_id', 'status']);
         });
     }
 
